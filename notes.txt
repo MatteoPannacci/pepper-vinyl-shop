@@ -1,0 +1,32 @@
+--- RUN DOCKER CONTAINERS ---
+cd /home/matt/Desktop/hri_software/docker
+./run.bash vnc
+
+--- REMOVE EXITED DOCKER ---
+docker rm <ID>
+
+--- REMOVE ALIVE DOCKER ---
+docker kill <ID>
+
+--- START DOCKER ---
+docker exec -it pepperhri tmux a
+
+--- PEPPER ACTIVATION CHOREGRAPHE ---
+654e-4564-153c-6518-2f44-7562-206e-4c60-5f47-5f45
+
+
+
+
+--- START MODIM (TABLET) ---
+
+from from inside docker:
+modify the variable PEPPER_PORT to that read from choregraphe
+cd ~/src/modim/src/GUI
+python ws_server.py -robot pepper
+
+from host:
+cd hri_software/docker
+./run_nginx.bash $HOME/src/Pepper/modim/demo/sample
+
+from browser:
+http://localhost

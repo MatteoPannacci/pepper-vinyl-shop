@@ -1,0 +1,46 @@
+topic: ~assistant()
+language: enu
+
+# --- Concepts ---
+concept: (myname) ["My name is" "I'm"]
+concept: (genres) ["classical" "pop" "rock" "jazz"]
+concept: (greetings) ["hi" "hello"]
+
+
+# --- Global Greeting Only ---
+u: (~greetings _*) ^goto(name)
+
+
+# --- Start Question ---
+proposal: %question 
+    Ok, Let's start with my tablet. Tell me "finish" when you’re done with the tablet.
+    u1: (finish) ^goto(question2)
+
+
+# --- Follow-up Question ---
+proposal: %question2 
+    Ok, do you want to do something else?
+    u1: (yes) ^goto(music_intro)
+    u1: (no) Ok, bye bye.
+
+
+# --- Music Loop Entry ---
+proposal: %music_intro
+    Do you want to listen to some music?
+    u1: (yes) ^goto(play_music)
+    u1: (no) Ok, bye bye.
+
+
+# --- Play Music and Loop ---
+proposal: %play_music
+    Which kind of music do you want to listen to? Classical, Pop, Rock or Jazz?
+    u1: (~genres) Ok, I’ll play it. Tell me "stop" when you want to stop.
+        u2: (stop) Do you want to listen to something else?
+            u3: (yes) ^goto(play_music)
+            u3: (no) Ok, bye bye.
+
+
+# --- Asking Name ---
+proposal: %name
+    What's your name?
+    u1: (~myname {_*}) Hi $1! ^goto(question)
