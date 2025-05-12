@@ -2,13 +2,13 @@ topic: ~assistant()
 language: enu
 
 # --- Concepts ---
-concept: (myname) ["My name is" "I'm"]
+concept: (myname) ["My name is" "I'm" "I am"]
 concept: (genres) ["classical" "pop" "rock" "jazz"]
-concept: (greetings) ["hi" "hello"]
+concept: (greetings) ["hi" "hello" "hello there" "hey there"]
 
 
 # --- Global Greeting Only ---
-u: (~greetings _*) ^goto(name)
+u: (~greetings {*}) ^goto(name)
 
 
 # --- Start Question ---
@@ -43,4 +43,4 @@ proposal: %play_music
 # --- Asking Name ---
 proposal: %name
     What's your name?
-    u1: (~myname {_*}) Hi $1! ^goto(question)
+    u1: ({~myname} _*) Hi $1! $username=$1 ^goto(question)
