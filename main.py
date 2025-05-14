@@ -15,6 +15,7 @@ def graceful_close(ALDialog, topic_name):
     return 0
 
 
+
 def handleUsername(value):
     global project_path
 
@@ -36,6 +37,7 @@ def handleUsername(value):
         print(" | ".join(str(item) if item is not None else "NULL" for item in row))
 
     conn.close()
+
 
 
 def main():
@@ -78,9 +80,7 @@ def main():
     topic_path = os.path.join(project_path, "main.top")
     topf_path = topic_path.decode('utf-8')
     topic_name = ALDialog.loadTopic(topf_path.encode('utf-8'))
-    
     tts_service.say("Hello! I'm LUIGI.\nI'm here to inform and help you.\nYou can talk with me or interact by clicking the tablet."+" "*5, _async=True)
-    
     ALDialog.activateTopic(topic_name)
     ALDialog.subscribe('pepper_vinyl_shop')
 
@@ -88,8 +88,8 @@ def main():
     username_sub = ALMemory.subscriber("username")
     username_sub.signal.connect(handleUsername)
 
+    # busy waiting
     print("Pepper is Running... use Ctrl+C to finish the execution.")
-
     while True:
 
         try:
@@ -97,7 +97,6 @@ def main():
 
         except KeyboardInterrupt:
             return graceful_close(ALDialog, topic_name)
-
 
 
 
