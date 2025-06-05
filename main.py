@@ -5,6 +5,7 @@ import os
 import sqlite3
 import pandas as pd
 import time
+from MotionManager import *
 
 
 def graceful_close(ALDialog, topic_name):
@@ -75,6 +76,11 @@ def main():
     ALMemory = session.service('ALMemory')
     ALMotion = session.service("ALMotion")
     tts_service = session.service("ALTextToSpeech")
+
+    # setup Motion
+    #ALMotion.move(10, 0, 0)
+    #time.sleep(10)
+    #ALMotion.stopMove()    
 
     # setup ALDialog
     topic_path = os.path.join(project_path, "main.top")

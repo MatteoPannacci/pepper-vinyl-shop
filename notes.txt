@@ -19,14 +19,14 @@ docker exec -it pepperhri tmux a
 
 --- START MODIM (TABLET) ---
 
-from from inside docker:
 modify the variable PEPPER_PORT to that read from choregraphe
-cd ~/src/modim/src/GUI
-python ws_server.py -robot pepper
+    [from docker] export PEPPER_PORT=<port>
+
+go to MODIM session on tmux
+    [from docker] python ws_server.py -robot pepper
 
 from host:
-cd hri_software/docker
-./run_nginx.bash $HOME/src/Pepper/modim/demo/sample
+./run_nginx.bash /home/matt/playground/pepper-vinyl-shop/tablet
 
 from browser:
 http://localhost

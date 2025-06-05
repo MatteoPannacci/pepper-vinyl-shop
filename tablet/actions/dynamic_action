@@ -1,0 +1,17 @@
+IMAGE
+<*,*,*,*>: img/bear.jpg
+----
+TEXT
+<*,*,*,*>: This is a test for our function!! (hi mario)
+----
+TTS
+<*,*,*,*>: This is a test for our function!! (hi mario)
+----
+BUTTONS
+yes
+<*,*,*,*>: Yes
+no
+<*,*,*,*>: No
+perhaps
+<*,*,*,*>: Perhaps
+----
