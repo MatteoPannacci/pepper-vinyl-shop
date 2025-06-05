@@ -1,5 +1,5 @@
 *.db
-dynamic_action
+*/dynamic_action
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
