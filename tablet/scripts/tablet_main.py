@@ -31,30 +31,44 @@ def init_client():
     im.init()
 
 
-def create_dynamic_action(image, question, buttons=None, action_name='dynamic_action'):
+def create_dynamic_action(image=None, text=None, speech=None, buttons=None, gesture=None, action_name='dynamic_action'):
 
     action_file_path = os.path.join(ACTIONS_FOLDER, action_name)
 
-    action_content = """IMAGE
-        <*,*,*,*>: img/{}
-        ----
-        TEXT
-        <*,*,*,*>: {}
-        ----
-        TTS
-        <*,*,*,*>: {}
-        ----
-        BUTTONS
-    """.format(image, question, question)
+    action_content = ""
 
-    # WE CAN HAVE GESTURES
-    # GESTURE <*,*,*,*>: animations/Stand/Emotions/Positive/Happy_4
+    if image != None:
+        action_content += """IMAGE
+            <*,*,*,*>: img/{}
+            ----
+        """.format(image)
+    
+    if text != None:
+        action += """TEXT
+            <*,*,*,*>: {}
+            ----
+        """.format(text)
 
-    for button in buttons:
-        action_content += "{}\n".format(button)
-        action_content += "<*,*,*,*>: {}\n".format(button.capitalize())
+    if speech != None:
+        action_content +=  """TTS
+            <*,*,*,*>: {}
+            ----
+        """
+    
+    if buttons != None:
+        action_content += """
+            BUTTONS
+        """
+        for button in buttons:
+            action_content += "{}\n".format(button)
+            action_content += "<*,*,*,*>: {}\n".format(button.capitalize())
+        action_content += "----"
 
-    action_content += "----"
+    if gesture != None:
+        action_content += """
+            GESTURE <*,*,*,*>: {}
+            ----      
+        """.format(gesture)
 
     action_content = action_content.replace('    ', '')
 
@@ -88,7 +102,10 @@ def main(mws):
     session = app.session
 
     ALMemory = session.service('ALMemory')
-    username = ALMemory.getData('username')
+    try:
+        username = ALMemory.getData('username')
+    except:
+        username = None
 
     mws.run_interaction(init_client)
 
@@ -106,7 +123,7 @@ def main(mws):
 
     create_dynamic_action(
         image = 'bear.jpg',
-        question = 'This is a test for our function!! (hi {})'.format(username),
+        text = 'This is a test for our function!! (hi {})'.format(username),
         buttons = ['yes', 'no', 'perhaps']
     )
 
