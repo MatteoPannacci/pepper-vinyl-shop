@@ -16,6 +16,11 @@ u: (~greetings) ^gotoReactivate(name)
 u: (~goodbye) Goodbye! I'm going to wait for the next client ^gotoReactivate(restart)
 
 
+# --- Print on Console ---
+u: (function) i executed the print function! ^call(ALMemory.raiseEvent("function", 0))
+
+
+# --- Restart ---
 proposal: %restart
     u1: (~greetings) ^gotoReactivate(name)
 

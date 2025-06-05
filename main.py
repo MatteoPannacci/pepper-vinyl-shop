@@ -17,6 +17,10 @@ def graceful_close(ALDialog, topic_name):
 
 
 
+def handleFunction(value):
+    print("I received an event!!")
+
+
 def handleUsername(value):
     global project_path
 
@@ -93,6 +97,8 @@ def main():
     # connect variables
     username_sub = ALMemory.subscriber("username")
     username_sub.signal.connect(handleUsername)
+    function_sub = ALMemory.subscriber("function")
+    function_sub.signal.connect(handleFunction)
 
     # busy waiting
     print("Pepper is Running... use Ctrl+C to finish the execution.")
@@ -103,6 +109,9 @@ def main():
 
         except KeyboardInterrupt:
             return graceful_close(ALDialog, topic_name)
+
+
+# we can handle touching and events in genera through the topics
 
 
 
