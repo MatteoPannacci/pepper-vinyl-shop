@@ -16,24 +16,23 @@ def graceful_close(ALDialog, topic_name):
     return 0
 
 
+def checkUsername():
 
-def handleFunction(value):
-    print("I received an event!!")
-
-
-def handleUsername(value):
-    global project_path
+    username = ALMemory.getData("pepper-vinyl/username")
 
     conn = sqlite3.connect(os.path.join(project_path, "data/database.db"))
     cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM clients WHERE username = '{}' LIMIT 1".format(username))
+    
+    recognized = "true" if cursor.fetchone() else "false"
+    ALMemory.raiseEvent("pepper-vinyl/recognized", recognized)
 
-    print("\nNew Username: {}".format(value))
-
-    cursor.execute('''
-        INSERT INTO clients (username, fav_genre)
-        VALUES (?, ?)
-    ''', (value, None))
-    conn.commit()
+    if recognized == "false":
+        cursor.execute('''
+            INSERT INTO clients (username, fav_genre)
+            VALUES (?, ?)
+        ''', (username, None))
+        conn.commit()
 
     cursor.execute('SELECT * FROM clients')
     rows = cursor.fetchall()
@@ -45,9 +44,38 @@ def handleUsername(value):
 
 
 
+
+def handleFunction(value):
+
+    if value == "check_username":
+        checkUsername()
+
+    if value == 0:
+        print("I received an event!!")
+
+    if value == 1:
+
+        conn = sqlite3.connect(os.path.join(project_path, "data/database.db"))
+        cursor = conn.cursor()        
+
+        cursor.execute("SELECT vinyl FROM vinyls")
+        vinyl_list = [row[0] for row in cursor.fetchall()]
+
+        conn.close()
+
+        string = ""
+        for vinyl in vinyl_list:
+            print(vinyl)
+            string += " {}".format(vinyl)
+
+        ALMemory.raiseEvent("pepper-vinyl/say", "Damn")
+
+
+
 def main():
 
     global project_path
+    global ALMemory, ALDialog, tts_service
 
     # parse arguments
     parser = argparse.ArgumentParser()
@@ -70,10 +98,16 @@ def main():
     session = app.session
 
     # initialize database
-    df = pd.read_csv(os.path.join(project_path, "data/clients.csv"))
+    clients_df = pd.read_csv(os.path.join(project_path, "data/clients.csv"))
+    vinyls_df = pd.read_csv(os.path.join(project_path, "data/vinyls.csv"))
     conn = sqlite3.connect(os.path.join(project_path, "data/database.db"))
-    df.to_sql("clients", conn, if_exists="replace", index=False)
+    clients_df.to_sql("clients", conn, if_exists="replace", index=False)
+    vinyls_df.to_sql("vinyls", conn, if_exists="replace", index=False)
     conn.close()
+
+    # delete dfs
+    del clients_df
+    del vinyls_df
 
     # create variables for services
     ALDialog = session.service('ALDialog')
@@ -84,21 +118,23 @@ def main():
     # setup Motion
     #ALMotion.move(10, 0, 0)
     #time.sleep(10)
-    #ALMotion.stopMove()    
+    #ALMotion.stopMove()
 
     # setup ALDialog
     topic_path = os.path.join(project_path, "main.top")
     topf_path = topic_path.decode('utf-8')
     topic_name = ALDialog.loadTopic(topf_path.encode('utf-8'))
-    tts_service.say("Hello! I'm LUIGI.\nI'm here to inform and help you.\nYou can talk with me or interact by clicking the tablet."+" "*5, _async=True)
     ALDialog.activateTopic(topic_name)
     ALDialog.subscribe('pepper_vinyl_shop')
 
     # connect variables
-    username_sub = ALMemory.subscriber("username")
-    username_sub.signal.connect(handleUsername)
-    function_sub = ALMemory.subscriber("function")
+    function_sub = ALMemory.subscriber("pepper-vinyl/function")
     function_sub.signal.connect(handleFunction)
+
+    ALMemory.insertData("pepper-vinyl/username", "")
+    ALMemory.insertData("pepper-vinyl/function", "")
+    ALMemory.insertData("pepper-vinyl/recognized", "false")
+    ALMemory.insertData("pepper-vinyl/say", "")
 
     # busy waiting
     print("Pepper is Running... use Ctrl+C to finish the execution.")
@@ -111,7 +147,7 @@ def main():
             return graceful_close(ALDialog, topic_name)
 
 
-# we can handle touching and events in genera through the topics
+# we can handle touching and events in general through the topics
 
 
 

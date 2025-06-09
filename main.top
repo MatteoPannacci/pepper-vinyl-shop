@@ -2,59 +2,189 @@ topic: ~assistant()
 language: enu
 
 # --- Concepts ---
-concept: (myname) ["My name is" "I'm" "I am"]
+
+concept: (myname) ["My name is" "I'm" "I am"
+                   "This is" "They call me" "You can call me" 
+                   "I go by" "The name's" "It's me"]
+
 concept: (genres) ["classical" "pop" "rock" "jazz"]
-concept: (greetings) ["hi" "hello" "hello there" "hey there"]
+
+concept: (greetings) ^rand["hi" "hello" "hello there" "hey there" "good morning"
+                           "hey" "hi there" "good afternoon" "good evening"
+                           "greetings" "nice to see you" "good day"]
+
 concept: (goodbye) ["goodbye"]
 
+concept: (acceptance) ["yes"]
 
-# --- Global Greeting Only ---
-u: (~greetings) ^gotoReactivate(name)
+concept: (refusal) ["no"]
 
-
-# --- Goodbye ---
-u: (~goodbye) Goodbye! I'm going to wait for the next client ^gotoReactivate(restart)
+concept: (dont_know) ["I don't know"]
 
 
-# --- Print on Console ---
-u: (function) i executed the print function! ^call(ALMemory.raiseEvent("function", 0))
+
+# --- Global Greeting ---
+u: (~greetings)
+    ^gotoReactivate(begin)
+
 
 
 # --- Restart ---
 proposal: %restart
-    u1: (~greetings) ^gotoReactivate(name)
+    u1: (~greetings) ^gotoReactivate(begin)
 
 
-# --- Start Question ---
-proposal: %question 
-    Ok, Let's start with my tablet. Tell me "finish" when you’re done with the tablet.
-    u1: (finish) ^gotoReactivate(question2)
+
+# --- Begin ---
+proposal: %begin
+    Hello! I'm Pepper, your shopping assistant for this Vinyl Shop.
+    I'm here to inform and help you.
+    ^gotoReactivate(name)
 
 
-# --- Follow-up Question ---
-proposal: %question2 
-    Ok, do you want to do something else?
-    u1: (yes) ^gotoReactivate(music_intro)
-    u1: (no) Ok, bye bye.
 
+# --- Global Goodbye ---
+u: (~goodbye) 
+    Goodbye! I'm going to wait for the next client
+    ^gotoReactivate(restart)
 
-# --- Music Loop Entry ---
-proposal: %music_intro
-    Do you want to listen to some music?
-    u1: (yes) ^gotoReactivate(play_music)
-    u1: (no) Ok, bye bye.
-
-
-# --- Play Music and Loop ---
-proposal: %play_music
-    Which kind of music do you want to listen to? Classical, Pop, Rock or Jazz?
-    u1: (~genres) Ok, I’ll play it. Tell me "stop" when you want to stop.
-        u2: (stop) Do you want to listen to something else?
-            u3: (yes) ^gotoReactivate(play_music)
-            u3: (no) Ok, bye bye.
 
 
 # --- Asking Name ---
+# (template for all the stuff)
 proposal: %name
     What's your name?
-    u1: ({~myname} _*) Hi $1! $username=$1 ^gotoReactivate(question)
+
+    u1: ({~myname} _*)
+        ~greetings $1! 
+        $pepper-vinyl/username=$1
+        $pepper-vinyl/function="check_username"
+
+    u2: (e:pepper-vinyl/recognized $pepper-vinyl/recognized==true) 
+        Welcome back to our shop! ^gotoReactivate(specific)
+    
+    u2: (e:pepper-vinyl/recognized $pepper-vinyl/recognized==false) 
+        Nice to meet you! ^gotoReactivate(specific)
+
+
+
+# --- Asking for specific Vinyl ---
+proposal: %specific
+    Anything specific you are looking for?
+
+    u1: (~acceptance) 
+        Ok, tell me the name and i will look for it in our shop
+        
+        u2: (_*) 
+            $pepper-vinyl/vinyl_name=$1
+            ^gotoReactivate(check_storage)
+
+    u1: (~refusal)
+        Ok, i can suggest you something!
+        $pepper-vinyl/function="check_preferences"
+
+        u2: (e:pepper-vinyl/has_preferences $pepper-vinyl/has_preferences==true)
+            ^gotoReactivate(give_suggestion)
+        
+        u2: (e:pepper-vinyl/has_preferences $pepper-vinyl/has_preferences==false)
+            But before i need to know what you like
+            ^gotoReactivate(ask_preferences)
+
+
+
+proposal: %check_storage
+    I will look in our storage database for $pepper-vinyl/vinyl_name
+    $pepper-vinyl/function="check_storage"
+    
+    u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==available)
+        I found the vinyl you were looking for. 
+        ^gotoReactivate(get_the_vinyl)
+    
+    u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==out_of_stock)
+        We don't have it in storage right now but i can order it for you.
+        Do you want me to procede?
+
+        u2: (~acceptance)
+            Ok, i will add it to the list of orders.
+            $pepper-vinyl/function="order_vinyl"
+            ^gotoReactivate(need_something_else)
+
+        u2: (~refusal)
+            ^gotoReactivate(need_something_else)
+
+    u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==unknown)
+        I'm sorry, i don't know any vinyl with that name.
+        ^gotoReactivate(need_something_else)
+
+
+
+proposal: %get_the_vinyl
+    Do you want me to guide you to it?
+
+    u1: (~acceptance)
+        Ok, follow me then.
+        $pepper-vinyl/function="guide_client"
+
+        # u2: (e:finished_movement): continue!!
+        #     ^goto(need_something_else)
+
+    u1: (~refusal)
+        Ok, I'll take it and bring it back to you
+        $pepper-vinyl/function="take_and_go_back"
+
+        # u2: (e:finished_movement): continue!!
+        #     ^goto(need_something_else)
+
+
+
+proposal: %ask_preferences
+    What is you favourite genre?
+
+    u1: (_~genres)
+        $pepper-vinyl/favourite_genre=$1
+        $pepper-vinyl/function="set_favourite"
+        ^gotoReactivate(give_suggestion)
+
+    u1: (~dont_know)
+        $pepper-vinyl/favourite_genre="anything"
+        $pepper-vinyl/function="set_favourite"
+        ^gotoReactivate(give_suggestion)
+
+    u1: (*)
+        That doesn't look like a music genre, could you try something else?
+        ^gotoReactivate(ask_preferences)
+
+
+
+proposal: %give_suggestion
+    $pepper-vinyl/function="find_suggestion"
+
+    u1:(e:pepper-vinyl/suggestion):
+        Here is the most popular song from $pepper-vinyl/selected_genre: $pepper-vinyl/suggestion
+        Do you want to listen to a demo of it?
+
+        u2: (~acceptance)
+            Ok, i will play a demo from $pepper-vinyl/suggestion
+            $pepper-vinyl/function="play_demo"
+
+        u2: (~refusal)
+            Do you want to buy it?
+
+            u2: (~acceptance)
+                ^gotoReactivate(get_the_vinyl)
+
+            u2: (~refusal)
+                ^gotoReactivate(need_something_else)
+
+
+
+proposal: %need_something_else
+    Do you need help with something else?
+
+    u1: (~acceptance)
+        ^gotoReactivate(specific)
+
+    u2: (~refusal)
+        Thank you for choosing our store, you can find the cashier near the entrance.
+        If you need something else you can ask me again.
+        ^gotoReactivate(restart)
