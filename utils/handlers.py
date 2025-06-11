@@ -7,7 +7,9 @@ import pandas as pd
 import time
 import random
 
-from session_manager import *
+from .motion import *
+from .session_manager import *
+from .animations import *
 
 
 UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -86,7 +88,7 @@ def checkStorage():
     cursor.execute('''
         SELECT quantity
         FROM  vinyls
-        WHERE vinyl = '{}' 
+        WHERE vinyl = '{}'
     '''.format(vinyl_name))
 
     result = cursor.fetchone()
@@ -122,19 +124,57 @@ def orderVinyl():
 
 
 def guideClient():
+
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
 
-    time.sleep(5) # IMPLEMENT MOVEMENT
+    vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT x, y
+        FROM  vinyls
+        WHERE vinyl = '{}'
+    '''.format(vinyl_name))
+
+    result = cursor.fetchone()
+    conn.close()
+
+    move_to(result[0], result[1], None)
+    # point
+    rotate("behind")
+
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
 
 def takeAndGoBack():
+
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
+    ALMotion = manager.session.service('ALMotion')
 
-    time.sleep(5) # IMPLEMENT MOVEMENT
+    vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
+
+    current_pose = ALMotion.getRobotPosition(False)
+    initial_x, initial_y = current_pose[0], current_pose[1]
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT x, y
+        FROM  vinyls
+        WHERE vinyl = '{}'
+    '''.format(vinyl_name))
+
+    result = cursor.fetchone()
+    conn.close()
+
+    move_to(result[0], result[1], None)
+    reach_and_grab()
+    move_to(initial_x, initial_y, None)
+    offer_item()
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 

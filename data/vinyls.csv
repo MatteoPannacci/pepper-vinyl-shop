@@ -1,28 +1,28 @@
 vinyl,author,genre,release_date,quantity,x,y
-dark side of the moon,pink floyd,progressive rock,1973-03-01,1,-26.3,-54.46
-abbey road,the beatles,rock,1969-09-26,3,-55.04,58.99
-thriller,michael jackson,pop,1982-11-30,0,-34.75,95.08
-rumours,fleetwood mac,rock,1977-02-04,4,82.74,85.12
-back in black,ac/dc,hard rock,1980-07-25,3,-65.08,-80.07
-hotel california,the eagles,rock,1976-12-08,2,22.53,34.0
-the wall,pink floyd,progressive rock,1979-11-30,1,-81.1,59.86
-born to run,bruce springsteen,rock,1975-08-25,2,-93.83,-90.38
-let it bleed,the rolling stones,rock,1969-12-05,1,-15.62,95.82
-the rise and fall of ziggy stardust,david bowie,glam rock,1972-06-16,2,61.45,-99.53
-graceland,paul simon,worldbeat,1986-08-25,3,-74.16,13.03
-bad,michael jackson,pop,1987-08-31,1,77.01,85.54
-purple rain,prince,pop rock,1984-06-25,2,83.05,-98.2
-nevermind,nirvana,grunge,1991-09-24,0,12.9,4.57
-ten,pearl jam,grunge,1991-08-27,1,-66.75,-37.79
-ok computer,radiohead,alternative rock,1997-05-21,3,-16.06,68.15
-the queen is dead,the smiths,indie rock,1986-06-16,2,99.09,44.27
-21,adele,pop soul,2011-01-24,5,12.89,-52.94
-damn.,kendrick lamar,hip hop,2017-04-14,2,21.58,68.68
-to pimp a butterfly,kendrick lamar,hip hop,2015-03-15,1,-8.7,-13.89
-lemonade,beyonce,r&b,2016-04-23,2,68.41,71.09
-parachutes,coldplay,alternative rock,2000-07-10,3,99.82,-8.43
-kid a,radiohead,electronic rock,2000-10-02,1,33.06,53.23
-master of puppets,metallica,thrash metal,1986-03-03,2,-15.19,79.44
-american idiot,green day,punk rock,2004-09-20,3,86.88,-51.27
-kind of blue,miles davis,jazz,1959-08-17,1,55.77,8.52
-a love supreme,john coltrane,jazz,1965-01-12,2,-59.04,-62.35
+dark side of the moon,pink floyd,progressive rock,1973-03-01,1,-1.15,-2.94
+abbey road,the beatles,rock,1969-09-26,3,-2.27,2.95
+thriller,michael jackson,pop,1982-11-30,0,-1.45,4.74
+rumours,fleetwood mac,rock,1977-02-04,4,4.36,4.25
+back in black,ac/dc,hard rock,1980-07-25,3,-2.69,-4.01
+hotel california,the eagles,rock,1976-12-08,2,0.9,1.67
+the wall,pink floyd,progressive rock,1979-11-30,1,-3.37,3.0
+born to run,bruce springsteen,rock,1975-08-25,2,-3.92,-4.42
+let it bleed,the rolling stones,rock,1969-12-05,1,-0.75,4.78
+the rise and fall of ziggy stardust,david bowie,glam rock,1972-06-16,2,3.24,-5.0
+graceland,paul simon,worldbeat,1986-08-25,3,-3.59,0.7
+bad,michael jackson,pop,1987-08-31,1,4.08,4.27
+purple rain,prince,pop rock,1984-06-25,2,4.41,-4.92
+nevermind,nirvana,grunge,1991-09-24,0,0.45,-0.27
+ten,pearl jam,grunge,1991-08-27,1,-2.75,-1.95
+ok computer,radiohead,alternative rock,1997-05-21,3,-0.78,3.61
+the queen is dead,the smiths,indie rock,1986-06-16,2,5.0,2.17
+21,adele,pop soul,2011-01-24,5,0.45,-2.83
+damn.,kendrick lamar,hip hop,2017-04-14,2,0.85,3.44
+to pimp a butterfly,kendrick lamar,hip hop,2015-03-15,1,-0.44,-0.79
+lemonade,beyonce,r&b,2016-04-23,2,3.48,3.56
+parachutes,coldplay,alternative rock,2000-07-10,3,5.0,-0.52
+kid a,radiohead,electronic rock,2000-10-02,1,1.76,2.63
+master of puppets,metallica,thrash metal,1986-03-03,2,-0.72,3.95
+american idiot,green day,punk rock,2004-09-20,3,4.61,-2.79
+kind of blue,miles davis,jazz,1959-08-17,1,2.79,-0.17
+a love supreme,john coltrane,jazz,1965-01-12,2,-2.42,-3.25
