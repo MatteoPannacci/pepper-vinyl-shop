@@ -14,6 +14,7 @@ from .animations import *
 
 UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
 MAIN_DIR = os.path.dirname(UTILS_DIR)
+AUDIO_DIR = os.path.join(MAIN_DIR, "audio")
 
 
 def checkUsername():
@@ -28,9 +29,9 @@ def checkUsername():
     cursor.execute('''
         SELECT 1 
         FROM clients 
-        WHERE username = '{}' 
+        WHERE username = ?
         LIMIT 1
-    '''.format(username))
+    ''', (username,))
     
     recognized = "true" if cursor.fetchone() else "false"
     ALMemory.raiseEvent("pepper-vinyl/recognized", recognized)
@@ -62,13 +63,13 @@ def checkFavourite():
     cursor.execute('''
         SELECT fav_genre
         FROM clients 
-        WHERE username = '{}' 
-    '''.format(username))
+        WHERE username = ?
+    ''', (username,))
 
-    result = cursor.fetchall()
+    result = cursor.fetchone()
     conn.close()
 
-    has_favourite = "true" if len(result) > 0 else "false"
+    has_favourite = "false" if result[0]==None else "true"
     ALMemory.raiseEvent("pepper-vinyl/has_favourite", has_favourite)
 
     if has_favourite == "true":
@@ -88,8 +89,8 @@ def checkStorage():
     cursor.execute('''
         SELECT quantity
         FROM  vinyls
-        WHERE vinyl = '{}'
-    '''.format(vinyl_name))
+        WHERE vinyl = ?
+    ''', (vinyl_name,))
 
     result = cursor.fetchone()
     conn.close()
@@ -102,7 +103,6 @@ def checkStorage():
     
     else:
         ALMemory.raiseEvent("pepper-vinyl/vinyl_found", "available")
-
 
 
 def orderVinyl():
@@ -128,6 +128,7 @@ def guideClient():
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
 
+    username = ALMemory.getData("pepper-vinyl/username")
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
 
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
@@ -135,16 +136,31 @@ def guideClient():
     cursor.execute('''
         SELECT x, y
         FROM  vinyls
-        WHERE vinyl = '{}'
-    '''.format(vinyl_name))
+        WHERE vinyl = ?
+    ''', (vinyl_name,))
 
     result = cursor.fetchone()
-    conn.close()
 
     move_to(result[0], result[1], None)
-    # point
+    offer_item()
     rotate("behind")
 
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE vinyls
+        SET quantity = quantity - 1
+        WHERE vinyl = ?
+    ''', (vinyl_name,))
+    conn.commit()
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO buys (client,vinyl)
+        VALUES (?, ?)
+    ''', (username, vinyl_name))
+    conn.commit()
+
+    conn.close()
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
@@ -155,6 +171,7 @@ def takeAndGoBack():
     ALMemory = manager.session.service('ALMemory')
     ALMotion = manager.session.service('ALMotion')
 
+    username = ALMemory.getData("pepper-vinyl/username")
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
 
     current_pose = ALMotion.getRobotPosition(False)
@@ -165,16 +182,32 @@ def takeAndGoBack():
     cursor.execute('''
         SELECT x, y
         FROM  vinyls
-        WHERE vinyl = '{}'
-    '''.format(vinyl_name))
+        WHERE vinyl = ?
+    ''', (vinyl_name,))
 
     result = cursor.fetchone()
-    conn.close()
 
     move_to(result[0], result[1], None)
     reach_and_grab()
     move_to(initial_x, initial_y, None)
     offer_item()
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE vinyls
+        SET quantity = quantity - 1
+        WHERE vinyl = ?
+    ''', (vinyl_name,))
+    conn.commit()
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO buys (client,vinyl)
+        VALUES (?, ?)
+    ''', (username, vinyl_name))
+    conn.commit()
+
+    conn.close()
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
@@ -245,9 +278,9 @@ def findSuggestion():
     cursor.execute('''
         SELECT vinyl
         FROM vinyls 
-        WHERE genre = '{}'
+        WHERE genre = ? AND quantity>0
         ORDER BY release_date DESC
-    '''.format(selected_genre))
+    ''', (selected_genre,))
 
     # take the newest vinyl
     result = cursor.fetchone()
@@ -261,11 +294,55 @@ def playDemo():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
+    ALAudioPlayer = manager.session.service("ALAudioPlayer")
 
-    time.sleep(5) # IMPLEMENT PLAY MUSIC
+    file_name = "classical1.wav"
+    file_path = os.path.join(AUDIO_DIR, file_name)
+    #ALAudioPlayer.playFile(file_path)
+    dance_to_music()
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
+
+
+def reset():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    bow()
+
+    for key in ALMemory.getDataList("pepper-vinyl/"):
+        ALMemory.insertData(key, "")
+        print("Deleted: {}".format(key))
+
+    move_to(0.0, 0.0, 0.0)
+
+
+def pointToVinyl():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+    ALTracker = manager.session.service('ALTracker')
+
+    vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT x, y
+        FROM  vinyls
+        WHERE vinyl = ?
+    ''', (vinyl_name,))
+
+    result = cursor.fetchone()
+    conn.close()
+
+    ALTracker.pointAt("RArm", [result[0], result[1], 1.0], 1, 1.0)
+    ALTracker.lookAt([result[0], result[1], 1.0], 1, 1.0, True)
+
+
+    ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
 
 def handleFunction(value):
@@ -296,6 +373,12 @@ def handleFunction(value):
     
     elif value == "play_demo":
         playDemo()
+
+    elif value == "reset":
+        reset()
+
+    elif value == "point_to_vinyl":
+        pointToVinyl()
 
     else:
         raise ValueError("handler not found for value {}".format(value))

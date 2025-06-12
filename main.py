@@ -39,6 +39,7 @@ def main():
     # instantiate services
     ALDialog = manager.session.service('ALDialog')
     ALMemory = manager.session.service('ALMemory')
+    ALRobotPosture = manager.session.service('ALRobotPosture')
 
     # setup ALDialog
     topic_path = os.path.join(MAIN_DIR, "main.top")
@@ -46,6 +47,8 @@ def main():
     topic_name = ALDialog.loadTopic(topf_path.encode('utf-8'))
     ALDialog.activateTopic(topic_name)
     ALDialog.subscribe('pepper_vinyl_shop')
+
+    ALRobotPosture.goToPosture("StandInit", 0.5)
 
     # reset variables
     for key in ALMemory.getDataList("pepper-vinyl/"):
@@ -68,8 +71,6 @@ def main():
 
 
 # we can handle touching and events in general through the topics
-# we can point at the vinyl location before going there
-
 
 
 if __name__ == "__main__":

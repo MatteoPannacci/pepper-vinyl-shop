@@ -45,7 +45,7 @@ proposal: %begin
 
 # --- Global Goodbye ---
 u: (~goodbye) 
-    Goodbye! I'm going to wait for the next client
+    Goodbye! I'm going to wait for the next client.
     ^gotoReactivate(restart)
 
 
@@ -73,14 +73,14 @@ proposal: %specific
     Anything specific you are looking for?
 
     u1: (~acceptance) 
-        Ok, tell me the name and i will look for it in our shop
+        Ok, tell me the name and i will look for it in our shop.
         
         u2: (_*) 
             $pepper-vinyl/vinyl_name=$1
             ^gotoReactivate(check_storage)
 
     u1: (~refusal)
-        Ok, i can suggest you something if you want
+        Ok, i can suggest you something if you want.
 
         u2: (~acceptance)
             $pepper-vinyl/function="check_favourite"
@@ -89,7 +89,7 @@ proposal: %specific
                 ^gotoReactivate(give_suggestion)
             
             u3: (e:pepper-vinyl/has_favourite $pepper-vinyl/has_favourite==false)
-                But before i need to know what you like
+                But before i need to know what you like.
                 ^gotoReactivate(ask_favourite)
 
         u2: (~refusal)
@@ -98,11 +98,11 @@ proposal: %specific
 
 
 proposal: %check_storage
-    I will look in our storage database for $pepper-vinyl/vinyl_name
+    I will look in our storage database for $pepper-vinyl/vinyl_name .
     $pepper-vinyl/function="check_storage"
     
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==available)
-        I found the vinyl you were looking for. 
+        I found the vinyl you were looking for.
         ^gotoReactivate(get_the_vinyl)
     
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==out_of_stock)
@@ -124,25 +124,27 @@ proposal: %check_storage
 
 
 proposal: %get_the_vinyl
-    Do you want me to guide you to it?
+    $pepper-vinyl/function="point_to_vinyl"
 
-    u1: (~acceptance)
-        Ok, follow me then.
-        $pepper-vinyl/function="guide_client"
+    u1: (e:pepper-vinyl/finish_wait)
+        It is right there.
+        Do you want me to guide you to it?
 
-        u2: (e:finish_wait):
-            Here is your vinyl
-            # emote
-            ^goto(need_something_else)
+        u2: (~acceptance)
+            Ok, follow me then.
+            $pepper-vinyl/function="guide_client"
 
-    u1: (~refusal)
-        Ok, I'll take it and bring it back to you
-        $pepper-vinyl/function="take_and_go_back"
+            u3: (e:pepper-vinyl/finish_wait)
+                Your vinyl is right here.
+                ^goto(need_something_else)
 
-        u2: (e:finish_wait):
-            Here is your vinyl
-            # emote
-            ^goto(need_something_else)
+        u2: (~refusal)
+            Ok, I'll take it and bring it back to you.
+            $pepper-vinyl/function="take_and_go_back"
+
+            u3: (e:pepper-vinyl/finish_wait)
+                Here is your vinyl.
+                ^goto(need_something_else)
 
 
 
@@ -171,17 +173,18 @@ proposal: %give_suggestion
     $pepper-vinyl/function="find_suggestion"
 
     u1: (e:pepper-vinyl/suggestion)
-        Here is the newest vinyl from $pepper-vinyl/selected_genre:  "$pepper-vinyl/suggestion"
+        Here is the newest vinyl from $pepper-vinyl/selected_genre:  "$pepper-vinyl/suggestion" .
         Do you want to listen to a demo of it?
 
         u2: (~acceptance)
-            Ok, i will play a demo from $pepper-vinyl/suggestion
+            Ok, i will play a demo from $pepper-vinyl/suggestion .
             $pepper-vinyl/function="play_demo"
 
             u3: (e:pepper-vinyl/finish_wait)
                 That was the demo. Are you interested in buying the vinyl?
 
                 u4: (~acceptance)
+                    $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
                     ^gotoReactivate(get_the_vinyl)
 
                 u4: (~refusal)
@@ -190,10 +193,11 @@ proposal: %give_suggestion
         u2: (~refusal)
             Do you want to buy it?
 
-            u2: (~acceptance)
+            u3: (~acceptance)
+                $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
                 ^gotoReactivate(get_the_vinyl)
 
-            u2: (~refusal)
+            u3: (~refusal)
                 ^gotoReactivate(need_something_else)
 
 
@@ -207,4 +211,5 @@ proposal: %need_something_else
     u1: (~refusal)
         Thank you for choosing our store, you can find the cashier near the entrance.
         If you need something else you can ask me again.
+        $pepper-vinyl/function="reset"
         ^gotoReactivate(restart)

@@ -6,6 +6,9 @@ def move_to(target_x, target_y, target_theta = None):
 
     manager = SessionManager()
     ALMotion = manager.session.service("ALMotion")
+    ALRobotPosture = manager.session.service('ALRobotPosture')
+
+    ALRobotPosture.goToPosture("StandInit", 0.5)
 
     use_sensor_values = False
     current_pose = ALMotion.getRobotPosition(use_sensor_values)
