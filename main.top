@@ -22,9 +22,19 @@ concept: (dont_know) ["I don't know"]
 concept: (rating) ["1" "2" "3" "4" "5"]
 
 
+u: (tablet)
+    Let's see a question on the tablet.
+    $pepper-vinyl/tablet=ask_color
+
+    u1: (e:pepper-vinyl/tablet_finish)
+        your favourite color is $pepper-vinyl/answer .
+
 
 # --- Global Greeting ---
-u: (~greetings)
+u: ([
+        ~greetings
+        "e:pepper-vinyl/tablet_finish $pepper-vinyl/answer==start"
+    ])
     ^gotoReactivate(begin)
 
 
@@ -37,6 +47,7 @@ proposal: %restart
 
 # --- Begin ---
 proposal: %begin
+    $pepper-vinyl/tablet=execute_hello
     Hello! I'm Pepper, your shopping assistant for this Vinyl Shop.
     I'm here to inform and help you.
     ^gotoReactivate(name)
@@ -53,18 +64,23 @@ u: (~goodbye)
 # --- Asking Name ---
 # (template for all the stuff)
 proposal: %name
+    $pepper-vinyl/tablet=execute_ask-name
     What's your name?
 
-    u1: ({~myname} _*)
-        ~greetings $1!
+    u1: ({~myname} _*)        
         $pepper-vinyl/username=$1
         $pepper-vinyl/function="check_username"
+        ~greetings $1!
 
-        u2: (e:pepper-vinyl/recognized $pepper-vinyl/recognized==true) 
-            Welcome back to our shop! ^gotoReactivate(specific)
+        u2: (e:pepper-vinyl/recognized $pepper-vinyl/recognized==true)
+            $pepper-vinyl/tablet_dyn=welcome_old_user
+            Welcome back to our shop!
+            ^gotoReactivate(specific)
         
         u2: (e:pepper-vinyl/recognized $pepper-vinyl/recognized==false) 
-            Nice to meet you! ^gotoReactivate(specific)
+            $pepper-vinyl/tablet_dyn=welcome_new_user
+            Nice to meet you!
+            ^gotoReactivate(specific)
 
 
 

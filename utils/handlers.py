@@ -10,6 +10,7 @@ import random
 from .motion import *
 from .session_manager import *
 from .animations import *
+from .tablet import create_dynamic_action
 
 
 UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -382,3 +383,61 @@ def handleFunction(value):
 
     else:
         raise ValueError("handler not found for value {}".format(value))
+
+
+
+def handleTablet(value):
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    mode, action = value.split("_")
+
+    if mode == "ask":
+        answer = manager.ask_modim(action)
+        ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+        ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+    
+    elif mode == "execute":
+        manager.execute_modim(action)
+
+
+
+def welcomeOldUser():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+
+    create_dynamic_action(
+        image = "welcome_vinyl.png",
+        text = "Hi {}! Welcome back to our shop!".format(username)
+    )
+
+    handleTablet("execute_dynamic-action")
+
+
+def welcomeNewUser():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+
+    create_dynamic_action(
+        image = "welcome_vinyl.png",
+        text = "Hi {}! Nice to meet you!".format(username)
+    )
+
+    handleTablet("execute_dynamic-action")
+
+
+
+def handleTabletDynamic(value):
+
+    if value == "welcome_old_user":
+        welcomeOldUser()
+    
+    elif value == "welcome_new_user":
+        welcomeNewUser()

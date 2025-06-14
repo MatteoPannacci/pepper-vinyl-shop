@@ -36,6 +36,9 @@ def main():
     # initialize database
     manager.initialize_database()
 
+    # initialize tablet
+    manager.initialize_tablet()
+
     # instantiate services
     ALDialog = manager.session.service('ALDialog')
     ALMemory = manager.session.service('ALMemory')
@@ -58,9 +61,16 @@ def main():
     # connect handlers
     function_sub = ALMemory.subscriber("pepper-vinyl/function")
     function_sub.signal.connect(handleFunction)
+    tablet_sub = ALMemory.subscriber("pepper-vinyl/tablet")
+    tablet_sub.signal.connect(handleTablet)
+    tablet_dyn_sub = ALMemory.subscriber("pepper-vinyl/tablet_dyn")
+    tablet_dyn_sub.signal.connect(handleTabletDynamic)
+
+
+    print("Pepper is Running... use Ctrl+C to finish the execution.")
+    handleTablet("ask_welcome")
 
     # busy waiting
-    print("Pepper is Running... use Ctrl+C to finish the execution.")
     while True:
 
         try:
@@ -71,6 +81,9 @@ def main():
 
 
 # we can handle touching and events in general through the topics
+# we can use a finish_wait variable to synchronize the modim stuff
+# can we use the tablet to play music?
+# database vinyl-description + interaction "tell me more about it"
 
 
 if __name__ == "__main__":

@@ -1,20 +1,10 @@
 IMAGE
-<*, *, *, *>:  img/welcome.jpg
+<*,*,*,*>:  img/welcome_vinyl.png
 ----
 TEXT
-<*,*,it,*>: Benvenuto
 <*,*,*,*>:  Welcome
-----
-GESTURE
-<*,*,*,*>: animations/Stand/Gestures/Hey_1
-----
-TTS
-<*,*,it,*>: Ciao! Benvenuto!
-<*,*,*,*>:  Hello! Welcome!
 ----
 BUTTONS
 start
-<*,*,it,*>: Inizia
 <*,*,*,*>:  Start
 ----
-
