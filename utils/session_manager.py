@@ -73,6 +73,10 @@ class SessionManager(object):
 
 
     def execute_modim(self, action):
+
+        # remove old buttons
+        self.mws.csend("im.executeModality('BUTTONS', [])")
+        
         with suppress_output():
             return self.mws.csend("im.execute('{}')".format(action))
 

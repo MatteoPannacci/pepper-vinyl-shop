@@ -6,6 +6,7 @@ import sqlite3
 import pandas as pd
 import time
 import random
+import string
 
 from .motion import *
 from .session_manager import *
@@ -319,6 +320,8 @@ def reset():
 
     move_to(0.0, 0.0, 0.0)
 
+    ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
+
 
 def pointToVinyl():
 
@@ -386,7 +389,7 @@ def handleFunction(value):
 
 
 
-def handleTablet(value):
+def handleTablet(value, finish=True):
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
@@ -395,11 +398,16 @@ def handleTablet(value):
 
     if mode == "ask":
         answer = manager.ask_modim(action)
-        ALMemory.raiseEvent("pepper-vinyl/answer", answer)
-        ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
     
     elif mode == "execute":
         manager.execute_modim(action)
+        answer = ""
+
+    if finish:
+        ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+        ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
+    return answer
 
 
 
@@ -433,6 +441,110 @@ def welcomeNewUser():
     handleTablet("execute_dynamic-action")
 
 
+def showVinyls():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT vinyl
+        FROM  vinyls
+        ORDER BY vinyl
+    ''')
+
+    result = cursor.fetchall()
+    conn.close()
+
+    result = [str(i[0]) for i in result]
+
+    vinyls_per_page = 6
+    current = list(range(vinyls_per_page))
+    finish = False
+
+    while not finish:
+
+        current_vinyls = [result[i] for i in current]
+        buttons = ["<-"] + current_vinyls + ["->"]
+
+        create_dynamic_action(
+            image = "welcome_vinyl.png",
+            text = "Here are the available vinyls:",
+            buttons = buttons,
+            action_name = "show-vinyls"
+        )
+
+        answer = handleTablet("ask_show-vinyls", finish=False)
+
+        if answer == "<-":
+            current = [(i-vinyls_per_page)%len(result) for i in current]
+        elif answer == "->":
+            current = [(i+vinyls_per_page)%len(result) for i in current]
+        elif answer in current_vinyls:
+            finish = True
+        elif answer == "00":
+            return
+
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
+
+def nameFromKeyboard():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    letters = list(string.ascii_lowercase)
+    buttons = letters + ["<=", "enter"]
+    
+    username = ""
+    finish = False
+
+    while not finish:
+
+        create_dynamic_action(
+            image = "welcome_vinyl.png",
+            text = "Your name is: {}".format(username),
+            buttons = buttons,
+            action_name = "ask-name"
+        )
+
+        answer = handleTablet("ask_ask-name", finish=False)
+
+        if answer == "enter":
+            finish = True
+        elif answer == "<=":
+            if len(username) > 0:
+                username = str(username[:-1])
+        elif answer in letters:
+            username = username + answer
+        elif answer == "00":
+            return
+    
+    ALMemory.raiseEvent("pepper-vinyl/answer", username)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
+
+def orderVinyl():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
+
+    create_dynamic_action(
+        image = "welcome_vinyl.png",
+        text = "We don't have '{}' in storage right now. Do you want to order it?".format(vinyl_name),
+        buttons = ["yes", "no"]
+    )
+
+    answer = handleTablet("ask_dynamic-action")
+
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
+
 
 def handleTabletDynamic(value):
 
@@ -441,3 +553,15 @@ def handleTabletDynamic(value):
     
     elif value == "welcome_new_user":
         welcomeNewUser()
+
+    elif value == "show_vinyls":
+        showVinyls()
+    
+    elif value == "name_from_keyboard":
+        nameFromKeyboard()
+
+    elif value == "order_vinyl":
+        orderVinyl()
+
+    else:
+        raise ValueError("handler not found for value {}".format(value))

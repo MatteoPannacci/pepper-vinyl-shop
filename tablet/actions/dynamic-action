@@ -2,5 +2,12 @@ IMAGE
 <*,*,*,*>: img/welcome_vinyl.png
 ----
 TEXT
-<*,*,*,*>: Hi luca! Welcome back to our shop!
+<*,*,*,*>: We don't have 'thriller' in storage right now. Do you want to order it?
+----
+
+BUTTONS
+yes
+<*,*,*,*>: Yes
+no
+<*,*,*,*>: No
 ----

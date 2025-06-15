@@ -1,0 +1,25 @@
+IMAGE
+<*,*,*,*>: img/welcome_vinyl.png
+----
+TEXT
+<*,*,*,*>: Here are the available vinyls:
+----
+
+BUTTONS
+<-
+<*,*,*,*>: <-
+21
+<*,*,*,*>: 21
+a love supreme
+<*,*,*,*>: A love supreme
+abbey road
+<*,*,*,*>: Abbey road
+american idiot
+<*,*,*,*>: American idiot
+back in black
+<*,*,*,*>: Back in black
+bad
+<*,*,*,*>: Bad
+->
+<*,*,*,*>: ->
+----

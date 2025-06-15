@@ -1,9 +1,8 @@
+IMAGE
+<*,*,*,*>: img/welcome_vinyl.png
+----
 TEXT
-<*,*,it,*>: Spero ti sia divertito. Arrivederci.
-<*,*,*,*>:  I hope you have enjoyed. Goodbye.
+<*,*,*,*>: Thank you for choosing our store. If you need something else you can ask me again.
 ----
-TTS
-<*,*,it,*>: Spero ti sia divertito. Arrivederci.
-<*,*,*,*>:  I hope you have enjoyed. Goodbye.
-----
+        
 

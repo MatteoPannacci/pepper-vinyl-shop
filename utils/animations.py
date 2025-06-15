@@ -78,6 +78,7 @@ def bow():
 
 
 def dance_to_music(filepath=None):
+
     manager = SessionManager()
     ALMotion = manager.session.service("ALMotion")
     ALRobotPosture = manager.session.service("ALRobotPosture")
@@ -116,3 +117,16 @@ def dance_to_music(filepath=None):
     ALMotion.angleInterpolation(names, dance_finish, [0.6]*5, True)
 
     ALRobotPosture.goToPosture("StandInit", 0.5)
+
+
+def wait_animation(wait_time):
+
+    manager = SessionManager()
+
+    ALMotion = manager.session.service("ALMotion")
+
+    ALMotion.wakeUp()
+    ALMotion.setStiffnesses("Body", 1.0)
+    ALMotion.setAngles("Body", [0.0]*25, 0.2)  # Hold neutral pose
+    time.sleep(wait_time)  # Duration of the pause
+    ALMotion.setStiffnesses("Body", 0.0)

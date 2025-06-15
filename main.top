@@ -22,18 +22,11 @@ concept: (dont_know) ["I don't know"]
 concept: (rating) ["1" "2" "3" "4" "5"]
 
 
-u: (tablet)
-    Let's see a question on the tablet.
-    $pepper-vinyl/tablet=ask_color
-
-    u1: (e:pepper-vinyl/tablet_finish)
-        your favourite color is $pepper-vinyl/answer .
-
 
 # --- Global Greeting ---
 u: ([
         ~greetings
-        "e:pepper-vinyl/tablet_finish $pepper-vinyl/answer==start"
+        "e:pepper-vinyl/answer $pepper-vinyl/answer==start_button"
     ])
     ^gotoReactivate(begin)
 
@@ -41,7 +34,13 @@ u: ([
 
 # --- Restart ---
 proposal: %restart
-    u1: (~greetings) ^gotoReactivate(begin)
+    $pepper-vinyl/tablet=ask_welcome
+
+    u1: ([
+            ~greetings
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==start_button"
+        ]) 
+        ^gotoReactivate(begin)
 
 
 
@@ -62,40 +61,61 @@ u: (~goodbye)
 
 
 # --- Asking Name ---
-# (template for all the stuff)
 proposal: %name
-    $pepper-vinyl/tablet=execute_ask-name
     What's your name?
+    $pepper-vinyl/tablet_dyn=name_from_keyboard
 
-    u1: ({~myname} _*)        
+    u1: ({~myname} _*)
         $pepper-vinyl/username=$1
-        $pepper-vinyl/function="check_username"
-        ~greetings $1!
+        ^gotoReactivate(check_name)
 
-        u2: (e:pepper-vinyl/recognized $pepper-vinyl/recognized==true)
-            $pepper-vinyl/tablet_dyn=welcome_old_user
-            Welcome back to our shop!
-            ^gotoReactivate(specific)
-        
-        u2: (e:pepper-vinyl/recognized $pepper-vinyl/recognized==false) 
-            $pepper-vinyl/tablet_dyn=welcome_new_user
-            Nice to meet you!
-            ^gotoReactivate(specific)
+    u1: (e:pepper-vinyl/tablet_finish)
+        $pepper-vinyl/username = $pepper-vinyl/answer
+        ^gotoReactivate(check_name)
+
+
+# -- Checking Name ---
+proposal: %check_name
+    $pepper-vinyl/function=check_username
+
+    u1: ("e:pepper-vinyl/recognized $pepper-vinyl/recognized==true")
+        $pepper-vinyl/tablet_dyn=welcome_old_user
+        ~greetings $pepper-vinyl/username ! Welcome back to our shop!
+        ^gotoReactivate(specific)
+    
+    u1: ("e:pepper-vinyl/recognized $pepper-vinyl/recognized==false") 
+        $pepper-vinyl/tablet_dyn=welcome_new_user
+        ~greetings $pepper-vinyl/username ! Nice to meet you!
+        ^gotoReactivate(specific)
+
 
 
 
 # --- Asking for specific Vinyl ---
 proposal: %specific
+    $pepper-vinyl/tablet=ask_specific
     Anything specific you are looking for?
 
-    u1: (~acceptance) 
-        Ok, tell me the name and i will look for it in our shop.
-        
-        u2: (_*) 
+    u1: ([
+            ~acceptance
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+        ])
+        $pepper-vinyl/tablet=execute_empty-show
+        Tell me the name and i will look for it or you can search on the tablet.
+        $pepper-vinyl/tablet_dyn=show_vinyls
+
+        u2: (_*)
             $pepper-vinyl/vinyl_name=$1
             ^gotoReactivate(check_storage)
 
-    u1: (~refusal)
+        u2: (e:pepper-vinyl/tablet_finish)
+            $pepper-vinyl/vinyl_name = $pepper-vinyl/answer
+            ^gotoReactivate(check_storage)
+
+    u1: ([
+            ~refusal
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+        ])
         Ok, i can suggest you something if you want.
 
         u2: (~acceptance)
@@ -114,26 +134,36 @@ proposal: %specific
 
 
 proposal: %check_storage
+    $pepper-vinyl/tablet=execute_check-storage
     I will look in our storage database for $pepper-vinyl/vinyl_name .
     $pepper-vinyl/function="check_storage"
     
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==available)
+        $pepper-vinyl/tablet=execute_vinyl-found
         I found the vinyl you were looking for.
         ^gotoReactivate(get_the_vinyl)
     
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==out_of_stock)
+        $pepper-vinyl/tablet_dyn=order_vinyl
         We don't have it in storage right now but i can order it for you.
         Do you want me to procede?
 
-        u2: (~acceptance)
+        u2: ([
+                ~acceptance
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+            ])
             Ok, i will add it to the list of orders.
             $pepper-vinyl/function="order_vinyl"
             ^gotoReactivate(need_something_else)
 
-        u2: (~refusal)
+        u2: ([
+                ~refusal
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+            ])
             ^gotoReactivate(need_something_else)
 
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==unknown)
+        $pepper-vinyl/tablet=execute_vinyl-not-found
         I'm sorry, i don't know any vinyl with that name.
         ^gotoReactivate(need_something_else)
 
@@ -143,24 +173,35 @@ proposal: %get_the_vinyl
     $pepper-vinyl/function="point_to_vinyl"
 
     u1: (e:pepper-vinyl/finish_wait)
+        $pepper-vinyl/tablet=ask_get-the-vinyl
         It is right there.
         Do you want me to guide you to it?
 
-        u2: (~acceptance)
+        u2: ([
+                ~acceptance
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+            ])
+            $pepper-vinyl/tablet=execute_follow-me
             Ok, follow me then.
-            $pepper-vinyl/function="guide_client"
+            $pepper-vinyl/function=guide_client
 
             u3: (e:pepper-vinyl/finish_wait)
+                $pepper-vinyl/tablet=execute_here-it-is
                 Your vinyl is right here.
-                ^goto(need_something_else)
+                ^gotoReactivate(need_something_else)
 
-        u2: (~refusal)
+        u2: ([
+                ~refusal
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+            ])
+            $pepper-vinyl/tablet=execute_wait-here
             Ok, I'll take it and bring it back to you.
             $pepper-vinyl/function="take_and_go_back"
 
             u3: (e:pepper-vinyl/finish_wait)
+                $pepper-vinyl/tablet=execute_here-it-is
                 Here is your vinyl.
-                ^goto(need_something_else)
+                ^gotoReactivate(need_something_else)
 
 
 
@@ -219,13 +260,23 @@ proposal: %give_suggestion
 
 
 proposal: %need_something_else
+    $pepper-vinyl/tablet=ask_need-something-else
     Do you need help with something else?
 
-    u1: (~acceptance)
+    u1: ([
+            ~acceptance
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+        ])
         ^gotoReactivate(specific)
 
-    u1: (~refusal)
+    u1: ([
+            ~refusal
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+        ])
+        $pepper-vinyl/tablet=execute_goodbye
         Thank you for choosing our store, you can find the cashier near the entrance.
         If you need something else you can ask me again.
-        $pepper-vinyl/function="reset"
-        ^gotoReactivate(restart)
+        $pepper-vinyl/function=reset
+
+        u2: (e:pepper-vinyl/finish_wait)
+            ^gotoReactivate(restart)
