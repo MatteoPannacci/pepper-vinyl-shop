@@ -1,5 +1,7 @@
 *.db
 */dynamic_action
+*.pyc
+*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

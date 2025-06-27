@@ -1,5 +1,21 @@
-username,fav_genre
-luca,jazz
-emanuele,hip hop
-ali,classical
-matteo,classical
+username,fav_genre,fav_author,last_visit
+luca,jazz,miles davis,2023-05-14
+emanuele,hip hop,kendrick lamar,2022-11-03
+ali,classical,antonio vivaldi,2024-02-19
+matteo,classical,ludwig van beethoven,2020-08-21
+anna,progressive rock,pink floyd,2021-12-08
+marco,rock,the beatles,2025-06-11
+giulia,pop,michael jackson,2022-01-30
+federico,hard rock,ac/dc,2023-07-25
+valentina,glam rock,david bowie,2020-04-16
+riccardo,worldbeat,paul simon,2025-04-03
+elisa,pop rock,prince,2021-03-27
+andrea,grunge,pearl jam,2024-06-09
+francesca,alternative rock,radiohead,2023-10-19
+simone,indie rock,the smiths,2020-09-05
+martina,pop soul,adele,2025-01-12
+davide,r&b,beyonce,2024-12-03
+carlo,electronic rock,radiohead,2021-05-28
+silvia,thrash metal,metallica,2023-02-17
+stefano,punk rock,green day,2022-06-22
+paolo,hip hop,kendrick lamar,2016-09-11

@@ -1,0 +1,12 @@
+IMAGE
+<*,*,*,*>:  img/welcome_vinyl.png
+----
+TEXT
+<*,*,*,*>:  I can suggest you something if you want.
+----
+BUTTONS
+yes
+<*,*,*,*>:  Yes
+no
+<*,*,*,*>:  No
+----

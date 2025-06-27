@@ -1,0 +1,3 @@
+from utils.neural_recommendation import train_gcn_bpr_model
+
+train_gcn_bpr_model()

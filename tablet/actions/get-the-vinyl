@@ -5,8 +5,12 @@ TEXT
 <*,*,*,*>: The vinyl is right there. Do you want me guide you to it?
 ----
 BUTTONS
-yes
+guide_me
 <*,*,*,*>: Guide me to it
-no
+take_it
 <*,*,*,*>: Take it for me
+forget_it
+<*,*,*,*>: Forget about it
+by_myself
+<*,*,*,*>: I'll go by myself
 ----

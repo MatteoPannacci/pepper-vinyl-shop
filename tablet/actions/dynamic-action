@@ -2,12 +2,12 @@ IMAGE
 <*,*,*,*>: img/welcome_vinyl.png
 ----
 TEXT
-<*,*,*,*>: We don't have 'thriller' in storage right now. Do you want to order it?
+<*,*,*,*>: Here are some recent releases in the genre of hip hop:
 ----
 
 BUTTONS
-yes
-<*,*,*,*>: Yes
-no
-<*,*,*,*>: No
+damn
+<*,*,*,*>: Damn
+back
+<*,*,*,*>: Back
 ----
