@@ -96,6 +96,7 @@ proposal: %chit_chat
         ^gotoReactivate(specific)
 
     u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==orders_arrived")
+        $pepper-vinyl/tablet_dyn=show_orders
         I have seen that we got some of your the orders: $pepper-vinyl/orders .
         You can get them from the cashier.
         ^gotoReactivate(need_something_else)
@@ -478,38 +479,60 @@ proposal: %give_suggestion
     $pepper-vinyl/function="find_suggestion"
 
     u1: (e:pepper-vinyl/suggestion)
+        $pepper-vinyl/tablet_dyn=show_suggestion
         Here is the newest vinyl from $pepper-vinyl/selected_genre:  "$pepper-vinyl/suggestion" .
         Do you want to listen to a demo of it?
 
-        u2: (~acceptance)
+        u2: ([
+                ~acceptance
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+            ])
+            $pepper-vinyl/tablet_dyn=playing_music
             Ok, i will play a demo from $pepper-vinyl/suggestion .
             $pepper-vinyl/function="play_demo"
 
             u3: (e:pepper-vinyl/finish_wait)
+                $pepper-vinyl/tablet=ask_do-you-want-to-buy
                 That was the demo. Are you interested in buying the vinyl?
 
-                u4: (~acceptance)
+                u4: ([
+                        ~acceptance
+                        "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+                    ])
                     $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
                     ^gotoReactivate(get_the_vinyl)
 
-                u4: (~refusal)
+                u4: ([
+                        ~refusal
+                        "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+                    ])
                     ^gotoReactivate(need_something_else)
 
-        u2: (~refusal)
+        u2: ([
+                ~refusal
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+            ])
+            $pepper-vinyl/tablet=ask_do-you-want-to-buy
             Do you want to buy it?
 
-            u3: (~acceptance)
+            u3: ([
+                    ~acceptance
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+                ])
                 $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
                 ^gotoReactivate(get_the_vinyl)
 
-            u3: (~refusal)
+            u3: ([
+                    ~refusal
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+                ])
                 ^gotoReactivate(need_something_else)
 
 
 
 proposal: %recommendation
     $pepper-vinyl/tablet=execute_empty-recommendations
-    I will compute some recommendations based on you interactions...
+    I will compute some recommendations based on your interactions...
     $pepper-vinyl/function=recommendations
 
     u1: (e:pepper-vinyl/recommendations) %retry_recommendation

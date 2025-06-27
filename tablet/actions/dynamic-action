@@ -2,12 +2,8 @@ IMAGE
 <*,*,*,*>: img/welcome_vinyl.png
 ----
 TEXT
-<*,*,*,*>: Here are some recent releases in the genre of hip hop:
+<*,*,*,*>: Playing the demo of 'a love supreme' !
 ----
 
 BUTTONS
-damn
-<*,*,*,*>: Damn
-back
-<*,*,*,*>: Back
 ----

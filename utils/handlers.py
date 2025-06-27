@@ -74,11 +74,11 @@ def checkFavourite():
     result = cursor.fetchone()
     conn.close()
 
-    has_favourite = "false" if result[0]==None else "true"
+    has_favourite = "false" if result==None else "true"
     ALMemory.raiseEvent("pepper-vinyl/has_favourite", has_favourite)
 
     if has_favourite == "true":
-        favourite_genre = result[0][0]
+        favourite_genre = result[0]
         ALMemory.raiseEvent("pepper-vinyl/favourite_genre", favourite_genre)
 
 
@@ -120,6 +120,10 @@ def orderVinyl():
 
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
     cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO buys (client,vinyl)
+        VALUES (?, ?)
+    ''', (username, vinyl_name))
     cursor.execute('''
         INSERT INTO orders (vinyl,client,status)
         VALUES (?, ?, ?)
@@ -907,6 +911,58 @@ def showGenreReleases():
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
 
 
+def showSuggestion():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    selected_genre = ALMemory.getData("pepper-vinyl/selected_genre")
+    suggestion = ALMemory.getData("pepper-vinyl/suggestion")
+
+    create_dynamic_action(
+        image = "welcome_vinyl.png",
+        text = "Here is the newest vinyl from {}: '{}'. Do you want to listen to a demo?".format(selected_genre, suggestion),
+        buttons = ["yes", "no"]
+    )    
+
+    answer = handleTablet("ask_dynamic-action")
+
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
+
+def playingMusic():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    suggestion = ALMemory.getData("pepper-vinyl/suggestion")    
+
+    create_dynamic_action(
+        image = "welcome_vinyl.png",
+        text = "Playing the demo of '{}' !".format(suggestion),
+        buttons = []
+    )
+
+    answer = handleTablet("execute_dynamic-action")
+
+
+def showOrders():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    orders = ALMemory.getData("pepper-vinyl/orders")    
+
+    create_dynamic_action(
+        image = "welcome_vinyl.png",
+        text = "Some of your orders arrived: {} ! You can get them from the cashier.".format(orders),
+        buttons = []
+    )
+
+    answer = handleTablet("execute_dynamic-action")
+
+
 def handleTabletDynamic(value):
 
     if value == "welcome_old_user":
@@ -935,6 +991,15 @@ def handleTabletDynamic(value):
 
     elif value == "show_genre_releases":
         showGenreReleases()
+
+    elif value == "show_suggestion":
+        showSuggestion()
+
+    elif value == "playing_music":
+        playingMusic()
+
+    elif value == "show_orders":
+        showOrders()
 
     else:
         raise ValueError("handler not found for value {}".format(value))

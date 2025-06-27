@@ -1,0 +1,12 @@
+IMAGE
+<*,*,*,*>:  img/welcome_vinyl.png
+----
+TEXT
+<*,*,*,*>: That was the demo. Are you interested in buying this vinyl?
+----
+BUTTONS
+yes
+<*,*,*,*>:  Yes
+no
+<*,*,*,*>:  No
+----

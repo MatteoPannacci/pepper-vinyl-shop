@@ -123,7 +123,7 @@ def cosine_similarity(a, b):
 def give_recommendations(username, top_k=5):
     model_path = os.path.join(MODELS_DIR, "gcn_model.pkl")
     with open(model_path, "rb") as f:
-        embeddings, user2id, item2id, id2user, id2item = pickle.load(f)
+        embeddings, user2id, item2id, id2user, _ = pickle.load(f)
 
     if username not in user2id:
         raise ValueError("User not found")
@@ -141,5 +141,6 @@ def give_recommendations(username, top_k=5):
     seen = set(df[df['client'] == username]['vinyl'])
 
     ranked = sorted(scores, key=lambda x: -x[1])
-    recommendations = [id2item[i] for i, _ in ranked if id2item[i] not in seen][:top_k]
+    
+    recommendations = [i for i, _ in ranked if i not in seen][:top_k]
     return recommendations

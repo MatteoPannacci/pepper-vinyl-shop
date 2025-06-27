@@ -49,11 +49,88 @@ class SessionManager(object):
         vinyls_df = pd.read_csv(os.path.join(MAIN_DIR, "data/vinyls.csv"))
         orders_df = pd.read_csv(os.path.join(MAIN_DIR, "data/orders.csv"))
         buys_df = pd.read_csv(os.path.join(MAIN_DIR, "data/buys.csv"))
+
         conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
-        clients_df.to_sql("clients", conn, if_exists="replace", index=False)
-        vinyls_df.to_sql("vinyls", conn, if_exists="replace", index=False)
-        orders_df.to_sql("orders", conn, if_exists="replace", index=False)
-        buys_df.to_sql("buys", conn, if_exists="replace", index=False)
+
+        clients_df.to_sql("clients_csv", conn, if_exists="replace", index=False)
+        vinyls_df.to_sql("vinyls_csv", conn, if_exists="replace", index=False)
+        orders_df.to_sql("orders_csv", conn, if_exists="replace", index=False)
+        buys_df.to_sql("buys_csv", conn, if_exists="replace", index=False)
+
+        conn.execute("PRAGMA foreign_keys = ON")
+        cursor = conn.cursor()
+
+        
+        cursor.execute("DROP TABLE IF EXISTS orders;")
+        cursor.execute("DROP TABLE IF EXISTS buys;")
+        cursor.execute("DROP TABLE IF EXISTS clients;")
+        cursor.execute("DROP TABLE IF EXISTS vinyls;")
+
+        cursor.execute("""
+        CREATE TABLE vinyls (
+            vinyl TEXT PRIMARY KEY,
+            author TEXT,
+            genre TEXT,
+            release_date TEXT,
+            quantity INTEGER,
+            x REAL,
+            y REAL
+        );
+        """)
+
+        cursor.execute("""
+            INSERT INTO vinyls 
+            SELECT * FROM vinyls_csv;
+        """)
+        cursor.execute("DROP TABLE vinyls_csv;")
+
+        cursor.execute("""
+        CREATE TABLE clients (
+            username TEXT PRIMARY KEY,
+            fav_genre TEXT,
+            fav_author TEXT,
+            last_visit TEXT
+        );
+        """)
+
+        cursor.execute("""
+            INSERT INTO clients 
+            SELECT * FROM clients_csv;
+        """)
+        cursor.execute("DROP TABLE clients_csv;")
+
+        cursor.execute("""
+        CREATE TABLE buys (
+            client TEXT,
+            vinyl TEXT,
+            FOREIGN KEY (vinyl) REFERENCES vinyls(vinyl),
+            FOREIGN KEY (client) REFERENCES clients(username)
+        );
+        """)
+
+        cursor.execute("""
+            INSERT INTO buys 
+            SELECT * FROM buys_csv;
+        """)
+        cursor.execute("DROP TABLE buys_csv;")
+
+        cursor.execute("""
+        CREATE TABLE orders (
+            vinyl TEXT,
+            client TEXT,
+            status TEXT,
+            FOREIGN KEY (vinyl) REFERENCES vinyls(vinyl),
+            FOREIGN KEY (client) REFERENCES clients(username)
+        );
+        """)
+
+        cursor.execute("""
+            INSERT INTO orders 
+            SELECT * FROM orders_csv;
+        """)
+        cursor.execute("DROP TABLE orders_csv;")
+
+        conn.commit()
         conn.close()
 
     

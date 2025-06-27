@@ -2,7 +2,7 @@ IMAGE
 <*,*,*,*>: img/welcome_vinyl.png
 ----
 TEXT
-<*,*,*,*>: Your name is: paolo
+<*,*,*,*>: Your name is: luca
 ----
 
 BUTTONS

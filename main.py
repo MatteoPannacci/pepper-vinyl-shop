@@ -66,7 +66,6 @@ def main():
     tablet_dyn_sub = ALMemory.subscriber("pepper-vinyl/tablet_dyn")
     tablet_dyn_sub.signal.connect(handleTabletDynamic)
 
-
     print("Pepper is Running... use Ctrl+C to finish the execution.")
     handleTablet("ask_welcome")
 
