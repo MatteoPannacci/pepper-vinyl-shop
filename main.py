@@ -2,14 +2,22 @@ import qi
 import argparse
 import sys
 import os
-import sqlite3
-import pandas as pd
 import time
+import warnings
+import logging
 
 from utils import *
 
 
 MAIN_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+# mute tensorflow deprecation warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+
 
 
 def graceful_close(ALDialog, topic_name):
@@ -66,7 +74,7 @@ def main():
     tablet_dyn_sub = ALMemory.subscriber("pepper-vinyl/tablet_dyn")
     tablet_dyn_sub.signal.connect(handleTabletDynamic)
 
-    print("Pepper is Running... use Ctrl+C to finish the execution.")
+    print("Pepper is Running... use Ctrl+C to finish the execution.")    
     handleTablet("ask_welcome")
 
     # busy waiting

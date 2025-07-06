@@ -326,7 +326,8 @@ proposal: %specific
             "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
         ])
         $pepper-vinyl/tablet=ask_i-can-suggest-something
-
+        Ok, i can suggest you something if you want.
+        
         u2: ([
                 ~acceptance
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
@@ -490,9 +491,26 @@ proposal: %give_suggestion
             Ok, i will play a demo from $pepper-vinyl/suggestion .
             $pepper-vinyl/function="play_demo"
 
-            u3: (e:pepper-vinyl/finish_wait)
+            u3: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==happy)
                 $pepper-vinyl/tablet=ask_do-you-want-to-buy
-                That was the demo. Are you interested in buying the vinyl?
+                I see that you really liked the demo. Are you interested in buying the vinyl?
+
+                u4: ([
+                        ~acceptance
+                        "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+                    ])
+                    $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
+                    ^gotoReactivate(get_the_vinyl)
+
+                u4: ([
+                        ~refusal
+                        "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+                    ])
+                    ^gotoReactivate(need_something_else)                
+
+            u3: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==neutral)
+                $pepper-vinyl/tablet=ask_do-you-want-to-buy
+                I see you have mixed emotions about this demo. Despite that, are you interested in buying the vinyl?
 
                 u4: ([
                         ~acceptance
@@ -507,11 +525,17 @@ proposal: %give_suggestion
                     ])
                     ^gotoReactivate(need_something_else)
 
+
+            u3: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==disgusted)
+                Oh, I see that you didn't like it very much... I won't play it again, let's try with something else.
+                ^gotoReactivate(need_something_else)
+
         u2: ([
                 ~refusal
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
             ])
             $pepper-vinyl/tablet=ask_do-you-want-to-buy
+            Do you want to buy it?
 
             u3: ([
                     ~acceptance
@@ -598,6 +622,7 @@ proposal: %recommendation
 
 proposal: %need_something_else
     $pepper-vinyl/tablet=ask_need-something-else
+    Do you need help with something else?
 
     u1: ([
             ~acceptance

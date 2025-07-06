@@ -15,11 +15,13 @@ from .session_manager import *
 from .animations import *
 from .tablet import create_dynamic_action
 from .neural_recommendation import *
+from .emotion_recognition import *
 
 
 UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
 MAIN_DIR = os.path.dirname(UTILS_DIR)
 AUDIO_DIR = os.path.join(MAIN_DIR, "audio")
+EMOTIONS_DIR = os.path.join(MAIN_DIR, "data/emotions/test")
 
 
 def checkUsername():
@@ -310,8 +312,18 @@ def playDemo():
     #ALAudioPlayer.playFile(file_path)
     dance_to_music()
 
-    ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
+    reaction = random.choice(["happy", "neutral", "disgusted"])
+    print("User reaction: {}".format(reaction))
 
+    image_path = os.path.join(EMOTIONS_DIR, reaction, "im{}.png".format(random.randint(0,100)))
+    print("Image chosen: {}".format(image_path))
+
+    predicted = str(predict_emotion(image_path, "./models/classifier"))
+    print("Predicted reaction: {}".format(predicted))
+
+    ALMemory.raiseEvent("pepper-vinyl/reaction", predicted)
+    ALMemory.raiseEvent("pepper-vinyl/true_reaction", reaction)
+    ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
 
 def reset():
@@ -400,10 +412,10 @@ def recommendations():
     username = ALMemory.getData("pepper-vinyl/username")
 
     train_model(
-        hidden_dim = 32,
-        epochs = 500,
-        lr = 0.01,
-        num_samples = 1024
+        hidden_dim=64,
+        epochs=2000,
+        lr=0.001,
+        num_samples=1024
     )
 
     recommendations = give_recommendations(username)

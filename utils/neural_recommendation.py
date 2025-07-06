@@ -23,6 +23,9 @@ def build_graph(seed=42):
     id2user = {i: u for u, i in user2id.items()}
     id2item = {i: v for v, i in item2id.items()}
 
+    # Count how many times each vinyl appears
+    vinyl_counts = df['vinyl'].value_counts()
+
     train_edges = []
     val_edges = []
 
@@ -35,16 +38,26 @@ def build_graph(seed=42):
         if len(user_edges) == 0:
             continue
 
-        rng.shuffle(user_edges)
+        # Separate edges where vinyl occurs only once globally
+        single_occurrence_edges = [e for e in user_edges if vinyl_counts[e.vinyl] == 1]
+        other_edges = [e for e in user_edges if vinyl_counts[e.vinyl] > 1]
 
-        val_edges.append(user_edges[0])
-        train_edges.extend(user_edges[1:])
+        # Always add single-occurrence vinyl edges to train set
+        train_edges.extend(single_occurrence_edges)
+
+        # Shuffle other edges and add all but one to train, one to val if possible
+        rng.shuffle(other_edges)
+        if len(other_edges) > 1:
+            train_edges.extend(other_edges[1:])
+            val_edges.append(other_edges[0])
+        else:
+            # If no edges or only one, just add to train
+            train_edges.extend(other_edges)
 
     G = nx.Graph()
     for row in train_edges:
         G.add_edge(user2id[row.client], item2id[row.vinyl])
 
-    # Validation pairs
     val_pairs = [(user2id[row.client], item2id[row.vinyl]) for row in val_edges]
 
     return G, user2id, item2id, id2user, id2item, len(users), len(items), train_edges, val_pairs
@@ -62,7 +75,7 @@ def train_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024, top_k=1, n
     # Build graph and mappings
     G, user2id, item2id, id2user, id2item, n_users, n_items, train_edges, val_pairs = build_graph()
     N = n_users + n_items
-
+    
     # Precompute normalized adjacency
     A = nx.adjacency_matrix(G).todense()
     A_norm = A
@@ -166,14 +179,14 @@ def train_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024, top_k=1, n
 
     # Save final model
     final_embeddings = sess.run(H, feed_dict={A_ph: A_norm})
-    with open(os.path.join(MODELS_DIR, "model.pkl"), "wb") as f:
+    with open(os.path.join(MODELS_DIR, "recommender_model.pkl"), "wb") as f:
         pickle.dump((final_embeddings, user2id, item2id, id2user, id2item), f)
 
     sess.close()
 
 
 def give_recommendations(username, top_k=5):
-    model_path = os.path.join(MODELS_DIR, "model.pkl")
+    model_path = os.path.join(MODELS_DIR, "recommender_model.pkl")
     with open(model_path, "rb") as f:
         embeddings, user2id, item2id, id2user, _ = pickle.load(f)
 
