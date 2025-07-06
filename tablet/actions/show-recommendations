@@ -1,0 +1,21 @@
+IMAGE
+<*,*,*,*>: img/welcome_vinyl.png
+----
+TEXT
+<*,*,*,*>: Here are some recommendations:
+----
+
+BUTTONS
+master of puppets
+<*,*,*,*>: Master of puppets
+kind of blue
+<*,*,*,*>: Kind of blue
+parachutes
+<*,*,*,*>: Parachutes
+a love supreme
+<*,*,*,*>: A love supreme
+abbey road
+<*,*,*,*>: Abbey road
+back
+<*,*,*,*>: Back
+----

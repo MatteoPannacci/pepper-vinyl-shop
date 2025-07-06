@@ -399,6 +399,13 @@ def recommendations():
 
     username = ALMemory.getData("pepper-vinyl/username")
 
+    train_model(
+        hidden_dim = 32,
+        epochs = 500,
+        lr = 0.01,
+        num_samples = 1024
+    )
+
     recommendations = give_recommendations(username)
     rec_string = ""
     for i in recommendations:
@@ -695,10 +702,11 @@ def welcomeOldUser():
 
     create_dynamic_action(
         image = "welcome_vinyl.png",
-        text = "Hi {}! Welcome back to our shop!".format(username)
+        text = "Hi {}! Welcome back to our shop!".format(username),
+        action_name = "welcome-old"
     )
 
-    handleTablet("execute_dynamic-action")
+    handleTablet("execute_welcome-old")
 
 
 def welcomeNewUser():
@@ -710,10 +718,11 @@ def welcomeNewUser():
 
     create_dynamic_action(
         image = "welcome_vinyl.png",
-        text = "Hi {}! Nice to meet you!".format(username)
+        text = "Hi {}! Nice to meet you!".format(username),
+        action_name = "welcome-new"
     )
 
-    handleTablet("execute_dynamic-action")
+    handleTablet("execute_welcome-new")
 
 
 def showVinyls():
@@ -813,10 +822,11 @@ def orderVinyl():
     create_dynamic_action(
         image = "welcome_vinyl.png",
         text = "We don't have '{}' in storage right now. Do you want to order it?".format(vinyl_name),
-        buttons = ["yes", "no"]
+        buttons = ["yes", "no"],
+        action_name = "order-vinyl"
     )
 
-    answer = handleTablet("ask_dynamic-action")
+    answer = handleTablet("ask_order-vinyl")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -833,11 +843,12 @@ def showRecommendations():
 
     create_dynamic_action(
         image = "welcome_vinyl.png",
-        text = "I will compute some recommendations based on you interactions...",
-        buttons = recommendations
+        text = "Here are some recommendations:",
+        buttons = recommendations,
+        action_name = "show-recommendations"
     )
 
-    answer = handleTablet("ask_dynamic-action")
+    answer = handleTablet("ask_show-recommendations")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -855,10 +866,11 @@ def showTodayReleases():
     create_dynamic_action(
         image = "welcome_vinyl.png",
         text = "Here are some releases from today:",
-        buttons = today_releases
+        buttons = today_releases,
+        action_name = "show-today-releases"
     )
 
-    answer = handleTablet("ask_dynamic-action")
+    answer = handleTablet("ask_show-today-releases")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -878,10 +890,11 @@ def showAuthorReleases():
     create_dynamic_action(
         image = "welcome_vinyl.png",
         text = "Here are some recent releases from {}:".format(fav_author),
-        buttons = author_releases
+        buttons = author_releases,
+        action_name = "show-author-releases"
     )
 
-    answer = handleTablet("ask_dynamic-action")
+    answer = handleTablet("ask_show-author-releases")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -902,10 +915,11 @@ def showGenreReleases():
     create_dynamic_action(
         image = "welcome_vinyl.png",
         text = "Here are some recent releases in the genre of {}:".format(fav_genre),
-        buttons = genre_releases
+        buttons = genre_releases,
+        action_name = "show-genre-releases"
     )
 
-    answer = handleTablet("ask_dynamic-action")
+    answer = handleTablet("ask_show-genre-releases")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -922,10 +936,11 @@ def showSuggestion():
     create_dynamic_action(
         image = "welcome_vinyl.png",
         text = "Here is the newest vinyl from {}: '{}'. Do you want to listen to a demo?".format(selected_genre, suggestion),
-        buttons = ["yes", "no"]
+        buttons = ["yes", "no"],
+        action_name = "show-suggestion"
     )    
 
-    answer = handleTablet("ask_dynamic-action")
+    answer = handleTablet("ask_show-suggestion")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -941,10 +956,11 @@ def playingMusic():
     create_dynamic_action(
         image = "welcome_vinyl.png",
         text = "Playing the demo of '{}' !".format(suggestion),
-        buttons = []
+        buttons = [],
+        action_name = "play-music"
     )
 
-    answer = handleTablet("execute_dynamic-action")
+    answer = handleTablet("execute_play-music")
 
 
 def showOrders():
@@ -957,10 +973,11 @@ def showOrders():
     create_dynamic_action(
         image = "welcome_vinyl.png",
         text = "Some of your orders arrived: {} ! You can get them from the cashier.".format(orders),
-        buttons = []
+        buttons = [],
+        action_name = "show-orders"
     )
 
-    answer = handleTablet("execute_dynamic-action")
+    answer = handleTablet("execute_show-orders")
 
 
 def handleTabletDynamic(value):

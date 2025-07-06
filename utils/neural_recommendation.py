@@ -12,21 +12,42 @@ DATASET_DIR = os.path.join(MAIN_DIR, "data")
 MODELS_DIR = os.path.join(MAIN_DIR, "models")
 
 
-def build_graph():
+
+def build_graph(seed=42):
     df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
     users = df['client'].unique().tolist()
     items = df['vinyl'].unique().tolist()
 
-    user2id = dict((u, i) for i, u in enumerate(users))
-    item2id = dict((v, i + len(users)) for i, v in enumerate(items))
-    id2user = dict((i, u) for u, i in user2id.iteritems())
-    id2item = dict((i, v) for v, i in item2id.iteritems())
+    user2id = {u: i for i, u in enumerate(users)}
+    item2id = {v: i + len(users) for i, v in enumerate(items)}
+    id2user = {i: u for u, i in user2id.items()}
+    id2item = {i: v for v, i in item2id.items()}
+
+    train_edges = []
+    val_edges = []
+
+    rng = np.random.RandomState(seed)
+
+    for user in users:
+        user_df = df[df['client'] == user]
+        user_edges = list(user_df.itertuples(index=False))
+
+        if len(user_edges) == 0:
+            continue
+
+        rng.shuffle(user_edges)
+
+        val_edges.append(user_edges[0])
+        train_edges.extend(user_edges[1:])
 
     G = nx.Graph()
-    for _, row in df.iterrows():
-        G.add_edge(user2id[row['client']], item2id[row['vinyl']])
+    for row in train_edges:
+        G.add_edge(user2id[row.client], item2id[row.vinyl])
 
-    return G, user2id, item2id, id2user, id2item, len(users), len(items)
+    # Validation pairs
+    val_pairs = [(user2id[row.client], item2id[row.vinyl]) for row in val_edges]
+
+    return G, user2id, item2id, id2user, id2item, len(users), len(items), train_edges, val_pairs
 
 
 def normalize_adj(adj):
@@ -37,42 +58,50 @@ def normalize_adj(adj):
     return d_mat_inv_sqrt.dot(adj).dot(d_mat_inv_sqrt)
 
 
-def train_gcn_bpr_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024):
-    G, user2id, item2id, id2user, id2item, n_users, n_items = build_graph()
+def train_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024, top_k=1, n_layers=3):
+    # Build graph and mappings
+    G, user2id, item2id, id2user, id2item, n_users, n_items, train_edges, val_pairs = build_graph()
     N = n_users + n_items
 
+    # Precompute normalized adjacency
     A = nx.adjacency_matrix(G).todense()
-    A_norm = normalize_adj(A + np.eye(N))
-    X = np.eye(N)  # One-hot features
+    A_norm = A
 
+    # TensorFlow placeholders
     tf.reset_default_graph()
-    X_ph = tf.placeholder(tf.float32, [N, N])
-    A_ph = tf.placeholder(tf.float32, [N, N])
-    uid_ph = tf.placeholder(tf.int32, [None])
-    pos_iid_ph = tf.placeholder(tf.int32, [None])
-    neg_iid_ph = tf.placeholder(tf.int32, [None])
+    A_ph = tf.placeholder(tf.float32, [N, N], name="A")
+    uid_ph = tf.placeholder(tf.int32, [None], name="uids")
+    pos_iid_ph = tf.placeholder(tf.int32, [None], name="pos_iids")
+    neg_iid_ph = tf.placeholder(tf.int32, [None], name="neg_iids")
 
-    # GCN layers
-    W0 = tf.Variable(tf.random_normal([N, hidden_dim], stddev=0.1))
-    W1 = tf.Variable(tf.random_normal([hidden_dim, hidden_dim], stddev=0.1))
+    # LightGCN: node embeddings without weights or activations
+    E0 = tf.Variable(tf.random_normal([N, hidden_dim], stddev=0.1), name="embeddings_0")
+    all_embeddings = [E0]
 
-    H1 = tf.nn.relu(tf.matmul(A_ph, tf.matmul(X_ph, W0)))
-    H = tf.matmul(A_ph, tf.matmul(H1, W1))  # Final embeddings
+    # Propagate embeddings through adjacency
+    for layer in range(n_layers):
+        next_emb = tf.matmul(A_ph, all_embeddings[-1])
+        all_embeddings.append(next_emb)
 
-    user_emb = tf.gather(H, uid_ph)
-    pos_item_emb = tf.gather(H, pos_iid_ph)
-    neg_item_emb = tf.gather(H, neg_iid_ph)
+    # Aggregate embeddings (mean of all layers)
+    H = E0
+    for layer, embeddings in enumerate(all_embeddings[1:]):
+        H += embeddings * 1/(layer+1)
+
+    # Gather user/item representations
+    user_emb = tf.gather(H, uid_ph)                          # [batch, hidden_dim]
+    pos_item_emb = tf.gather(H, pos_iid_ph)                 # [batch, hidden_dim]
+    neg_item_emb = tf.gather(H, neg_iid_ph)                 # [batch, hidden_dim]
 
     # BPR loss
-    pos_score = tf.reduce_sum(tf.multiply(user_emb, pos_item_emb), axis=1)
-    neg_score = tf.reduce_sum(tf.multiply(user_emb, neg_item_emb), axis=1)
-    loss = -tf.reduce_mean(tf.log(tf.nn.sigmoid(pos_score - neg_score)))
+    pos_score = tf.reduce_sum(user_emb * pos_item_emb, axis=1)
+    neg_score = tf.reduce_sum(user_emb * neg_item_emb, axis=1)
+    loss = -tf.reduce_mean(tf.log(tf.nn.sigmoid(pos_score - neg_score) + 1e-8))
 
+    # Optimizer
     train_step = tf.train.AdamOptimizer(lr).minimize(loss)
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
 
-    # Training data: positive interactions
+    # Load user positive interactions
     df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
     user_pos = {}
     for _, row in df.iterrows():
@@ -82,11 +111,22 @@ def train_gcn_bpr_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024):
 
     all_items = list(item2id.values())
 
+    # Build seen items for masking
+    seen_items = {u: [] for u in user_pos.keys()}
+    for u, i in train_edges:
+        uid = user2id[u]
+        iid = item2id[i]
+        seen_items[uid].append(iid)
+
+    # Training
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+
     for epoch in range(epochs):
         uids, pos_iids, neg_iids = [], [], []
         for _ in range(num_samples):
             u = np.random.choice(n_users)
-            if u not in user_pos or len(user_pos[u]) == 0:
+            if u not in user_pos or not user_pos[u]:
                 continue
             i = np.random.choice(list(user_pos[u]))
             j = np.random.choice(all_items)
@@ -96,32 +136,44 @@ def train_gcn_bpr_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024):
             pos_iids.append(i)
             neg_iids.append(j)
 
-        feed = {
-            X_ph: X,
-            A_ph: A_norm,
-            uid_ph: uids,
-            pos_iid_ph: pos_iids,
-            neg_iid_ph: neg_iids
-        }
-        _, l = sess.run([train_step, loss], feed_dict=feed)
+        feed_dict = {A_ph: A_norm,
+                     uid_ph: uids,
+                     pos_iid_ph: pos_iids,
+                     neg_iid_ph: neg_iids}
+        _, l = sess.run([train_step, loss], feed_dict=feed_dict)
+
         if epoch % 10 == 0:
-            print("Epoch %d: BPR Loss = %.4f" % (epoch, l))
+            # Compute final embeddings for evaluation
+            embeddings = sess.run(H, feed_dict={A_ph: A_norm})
+            normed_emb = embeddings / (np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-8)
 
-    final_embeddings = sess.run(H, feed_dict={X_ph: X, A_ph: A_norm})
+            # Evaluate Top-K accuracy on validation set
+            correct = 0
+            item_offset = n_users
+            for u, pos_i in val_pairs:
+                user_vec = normed_emb[u]
+                scores = np.dot(normed_emb[item_offset:], user_vec)
 
-    with open(os.path.join(MODELS_DIR, "gcn_model_bpr.pkl"), "wb") as f:
+                # Mask training items
+                for ti in seen_items[u]:
+                    scores[ti - item_offset] = -np.inf
+
+                topk = np.argsort(scores)[-top_k:][::-1]
+                if (pos_i - item_offset) in topk:
+                    correct += 1
+            val_acc = float(correct) / len(val_pairs)
+            print("Epoch {}: BPR Loss = {:.4f}, Top-{} Val Acc = {:.4f}".format(epoch, l, top_k, val_acc))
+
+    # Save final model
+    final_embeddings = sess.run(H, feed_dict={A_ph: A_norm})
+    with open(os.path.join(MODELS_DIR, "model.pkl"), "wb") as f:
         pickle.dump((final_embeddings, user2id, item2id, id2user, id2item), f)
 
     sess.close()
 
 
-
-def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-8)
-
-
 def give_recommendations(username, top_k=5):
-    model_path = os.path.join(MODELS_DIR, "gcn_model.pkl")
+    model_path = os.path.join(MODELS_DIR, "model.pkl")
     with open(model_path, "rb") as f:
         embeddings, user2id, item2id, id2user, _ = pickle.load(f)
 
@@ -129,17 +181,24 @@ def give_recommendations(username, top_k=5):
         raise ValueError("User not found")
 
     uid = user2id[username]
-    user_emb = embeddings[uid]
 
-    scores = []
-    for iid, emb_idx in item2id.iteritems():
-        score = cosine_similarity(user_emb, embeddings[emb_idx])
-        scores.append((iid, score))
+    # Normalize embeddings
+    normed_emb = embeddings / (np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-8)
+    user_vec = normed_emb[uid]
 
-    dataset_file = os.path.join(DATASET_DIR, "buys.csv")
-    df = pd.read_csv(dataset_file)
+    item_indices = np.array(list(item2id.values()))
+    item_vecs = normed_emb[item_indices]
+
+    # Vectorized cosine similarity
+    cosine_scores = np.dot(item_vecs, user_vec)
+
+    # Map back to item ids
+    idx_to_item = {v: k for k, v in item2id.items()}
+    scores = [(idx_to_item[idx], score) for idx, score in zip(item_indices, cosine_scores)]
+
+    # Filter out already seen items
+    df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
     seen = set(df[df['client'] == username]['vinyl'])
-
     ranked = sorted(scores, key=lambda x: -x[1])
     
     recommendations = [i for i, _ in ranked if i not in seen][:top_k]

@@ -13,11 +13,11 @@ concept: (greetings) ^rand["hi" "hello" "hello there" "hey there" "good morning"
 
 concept: (goodbye) ["goodbye"]
 
-concept: (acceptance) ["yes" "ok"]
+concept: (acceptance) ["yes" "ok" "fine"]
 
 concept: (refusal) ["no" "nope"]
 
-concept: (dont_know) ["I don't know"]
+concept: (dont_know) ["I don't know" "don't know"]
 
 concept: (rating) ["1" "2" "3" "4" "5"]
 
@@ -32,7 +32,7 @@ u: ([
 
 
 
-# --- Restart ---
+# --- Restart ---tablet/actions/ask-name
 proposal: %restart
     $pepper-vinyl/tablet=ask_welcome
 
@@ -326,7 +326,6 @@ proposal: %specific
             "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
         ])
         $pepper-vinyl/tablet=ask_i-can-suggest-something
-        Ok, i can suggest you something if you want.
 
         u2: ([
                 ~acceptance
@@ -513,7 +512,6 @@ proposal: %give_suggestion
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
             ])
             $pepper-vinyl/tablet=ask_do-you-want-to-buy
-            Do you want to buy it?
 
             u3: ([
                     ~acceptance
@@ -531,7 +529,7 @@ proposal: %give_suggestion
 
 
 proposal: %recommendation
-    $pepper-vinyl/tablet=execute_empty-recommendations
+    $pepper-vinyl/tablet=execute_computing-recommendations
     I will compute some recommendations based on your interactions...
     $pepper-vinyl/function=recommendations
 
@@ -600,7 +598,6 @@ proposal: %recommendation
 
 proposal: %need_something_else
     $pepper-vinyl/tablet=ask_need-something-else
-    Do you need help with something else?
 
     u1: ([
             ~acceptance
