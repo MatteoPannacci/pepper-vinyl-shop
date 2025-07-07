@@ -46,6 +46,7 @@ proposal: %restart
 
 # --- Begin ---
 proposal: %begin
+    $pepper-vinyl/function=greeting_animation
     $pepper-vinyl/tablet=execute_hello
     Hello! I'm Pepper, your shopping assistant for this Vinyl Shop.
     I'm here to inform and help you.
@@ -65,6 +66,7 @@ proposal: %name
     What's your name?
     $pepper-vinyl/tablet_dyn=name_from_keyboard
 
+    # --- problem in capturing the concept of name ---
     u1: ({~myname} _*)
         $pepper-vinyl/username=$1
         ^gotoReactivate(check_name)
@@ -76,6 +78,7 @@ proposal: %name
 
 # -- Checking Name ---
 proposal: %check_name
+    $pepper-vinyl/function=idle_animation_1
     $pepper-vinyl/function=check_username
 
     u1: ("e:pepper-vinyl/recognized $pepper-vinyl/recognized==true")
@@ -88,18 +91,19 @@ proposal: %check_name
         ~greetings $pepper-vinyl/username ! Nice to meet you!
         ^gotoReactivate(chit_chat)
 
-
+# -- what it does? ---
 proposal: %chit_chat
     $pepper-vinyl/function=chit_chat
 
-    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==nothing")
+    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==nothing") # -- the user has no interaction to be done, therefore go to specific
         ^gotoReactivate(specific)
 
-    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==orders_arrived")
+    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==orders_arrived") # -- the user has orders arrived, then show orders and enumerate them
         $pepper-vinyl/tablet_dyn=show_orders
+        $pepper-vinyl/function=idle_animation_3
         I have seen that we got some of your the orders: $pepper-vinyl/orders .
         You can get them from the cashier.
-        ^gotoReactivate(need_something_else)
+        ^gotoReactivate(need_something_else) # -- need something else
 
     u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==today_releases")
         ^gotoReactivate(today_releases)
@@ -310,6 +314,7 @@ proposal: %specific
             "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
         ])
         $pepper-vinyl/tablet=execute_empty-show
+        $pepper-vinyl/function=idle_animation_2
         Tell me the name and i will look for it or you can search on the tablet.
         $pepper-vinyl/tablet_dyn=show_vinyls
 
@@ -333,6 +338,7 @@ proposal: %specific
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
             ])
             $pepper-vinyl/tablet=ask_type-of-suggestion
+            $pepper-vinyl/function=idle_animation_3
             Do you want a suggestion based on a certain genre or do you want a personalized suggestion based on your previous interactions?
 
             u3: ([
@@ -386,6 +392,7 @@ proposal: %check_storage
     
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==out_of_stock)
         $pepper-vinyl/tablet_dyn=order_vinyl
+        $pepper-vinyl/function=idle_animation_1
         We don't have it in storage right now but i can order it for you.
         Do you want me to procede?
 
@@ -554,7 +561,8 @@ proposal: %give_suggestion
 
 proposal: %recommendation
     $pepper-vinyl/tablet=execute_computing-recommendations
-    I will compute some recommendations based on your interactions...
+    I will compute some recommendations based on your interactions, it might take a while so wait here!
+    $pepper-vinyl/function=thinking_animation
     $pepper-vinyl/function=recommendations
 
     u1: (e:pepper-vinyl/recommendations) %retry_recommendation
@@ -635,6 +643,7 @@ proposal: %need_something_else
             "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
         ])
         $pepper-vinyl/tablet=execute_goodbye
+        $pepper-vinyl/function=bow
         Thank you for choosing our store, you can find the cashier near the entrance.
         If you need something else you can ask me again.
         $pepper-vinyl/function=reset

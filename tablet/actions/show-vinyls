@@ -1,5 +1,5 @@
 IMAGE
-<*,*,*,*>: img/welcome_vinyl.png
+<*,*,*,*>: img/show_vinyls.png
 ----
 TEXT
 <*,*,*,*>: Here are the available vinyls:
@@ -8,18 +8,18 @@ TEXT
 BUTTONS
 <-
 <*,*,*,*>: <-
-21
-<*,*,*,*>: 21
-a love supreme
-<*,*,*,*>: A love supreme
-abbey road
-<*,*,*,*>: Abbey road
+am
+<*,*,*,*>: Am
 american idiot
 <*,*,*,*>: American idiot
+apocalypse
+<*,*,*,*>: Apocalypse
 back in black
 <*,*,*,*>: Back in black
 bad
 <*,*,*,*>: Bad
+be the cowboy
+<*,*,*,*>: Be the cowboy
 ->
 <*,*,*,*>: ->
 ----

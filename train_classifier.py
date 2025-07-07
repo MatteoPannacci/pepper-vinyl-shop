@@ -5,5 +5,5 @@ train_and_save(
     train_dir = "./data/emotions/train",
     val_dir = "./data/emotions/test",
     model_path = "./models/classifier",
-    epochs = 20
+    epochs = 10
 )

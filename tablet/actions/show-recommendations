@@ -1,21 +1,21 @@
 IMAGE
-<*,*,*,*>: img/welcome_vinyl.png
+<*,*,*,*>: img/vinyls.png
 ----
 TEXT
 <*,*,*,*>: Here are some recommendations:
 ----
 
 BUTTONS
-the money store
-<*,*,*,*>: The money store
-currents
-<*,*,*,*>: Currents
-in rainbows
-<*,*,*,*>: In rainbows
-entroducing
-<*,*,*,*>: Entroducing
-bad
-<*,*,*,*>: Bad
+time & space
+<*,*,*,*>: Time & space
+lemonade
+<*,*,*,*>: Lemonade
+master of puppets
+<*,*,*,*>: Master of puppets
+blackstar
+<*,*,*,*>: Blackstar
+trilogy
+<*,*,*,*>: Trilogy
 back
 <*,*,*,*>: Back
 ----

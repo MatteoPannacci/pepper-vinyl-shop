@@ -1,8 +1,8 @@
 IMAGE
-<*,*,*,*>: img/welcome_vinyl.png
+<*,*,*,*>: img/vinyl.png
 ----
 TEXT
-<*,*,*,*>: Here is the newest vinyl from classical: 'symphony no 5'. Do you want to listen to a demo?
+<*,*,*,*>: Here is the newest vinyl from hip hop: 'damn'. Do you want to listen to a demo?
 ----
 
 BUTTONS

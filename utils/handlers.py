@@ -345,8 +345,6 @@ def reset():
 
     conn.close()
 
-    bow()
-
     for key in ALMemory.getDataList("pepper-vinyl/"):
         ALMemory.insertData(key, "")
         print("Deleted: {}".format(key))
@@ -413,8 +411,8 @@ def recommendations():
 
     train_model(
         hidden_dim=64,
-        epochs=2000,
-        lr=0.001,
+        epochs=150, # changed for not making the user wait too much
+        lr=0.01,
         num_samples=1024
     )
 
@@ -678,10 +676,28 @@ def handleFunction(value):
     elif value == "check_genre_request":
         checkGenreRequest()
 
+    elif value == "greeting_animation":
+        greeting_animation()
+    
+    elif value == "idle_animation_1":
+        idle_animation_1()
+    
+    elif value == "idle_animation_2":
+        idle_animation_2()
+    
+    elif value == "idle_animation_3":
+        idle_animation_3()
+    
+    elif value == "thinking_animation":
+        thinking_animation()
+    
+    elif value == "bow":
+        bow()
+
     else:
         raise ValueError("handler not found for value {}".format(value))
 
-
+# TABLET STARTS HERE
 
 def handleTablet(value, finish=True):
 
@@ -713,7 +729,7 @@ def welcomeOldUser():
     username = ALMemory.getData("pepper-vinyl/username")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "welcome.png",
         text = "Hi {}! Welcome back to our shop!".format(username),
         action_name = "welcome-old"
     )
@@ -729,7 +745,7 @@ def welcomeNewUser():
     username = ALMemory.getData("pepper-vinyl/username")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "welcome.png",
         text = "Hi {}! Nice to meet you!".format(username),
         action_name = "welcome-new"
     )
@@ -765,7 +781,7 @@ def showVinyls():
         buttons = ["<-"] + current_vinyls + ["->"]
 
         create_dynamic_action(
-            image = "welcome_vinyl.png",
+            image = "vinyls.png",
             text = "Here are the available vinyls:",
             buttons = buttons,
             action_name = "show-vinyls"
@@ -800,7 +816,7 @@ def nameFromKeyboard():
     while not finish:
 
         create_dynamic_action(
-            image = "welcome_vinyl.png",
+            image = "name.png",
             text = "Your name is: {}".format(username),
             buttons = buttons,
             action_name = "ask-name"
@@ -832,7 +848,7 @@ def orderVinyl():
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "vinyl.png",
         text = "We don't have '{}' in storage right now. Do you want to order it?".format(vinyl_name),
         buttons = ["yes", "no"],
         action_name = "order-vinyl"
@@ -854,7 +870,7 @@ def showRecommendations():
     recommendations.append("back")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "vinyls.png",
         text = "Here are some recommendations:",
         buttons = recommendations,
         action_name = "show-recommendations"
@@ -876,7 +892,7 @@ def showTodayReleases():
     today_releases.append("back")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "vinyls.png",
         text = "Here are some releases from today:",
         buttons = today_releases,
         action_name = "show-today-releases"
@@ -900,7 +916,7 @@ def showAuthorReleases():
     author_releases.append("back")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "vinyls.png",
         text = "Here are some recent releases from {}:".format(fav_author),
         buttons = author_releases,
         action_name = "show-author-releases"
@@ -925,7 +941,7 @@ def showGenreReleases():
     genre_releases.append("back")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "vinyls.png",
         text = "Here are some recent releases in the genre of {}:".format(fav_genre),
         buttons = genre_releases,
         action_name = "show-genre-releases"
@@ -946,7 +962,7 @@ def showSuggestion():
     suggestion = ALMemory.getData("pepper-vinyl/suggestion")
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "vinyl.png",
         text = "Here is the newest vinyl from {}: '{}'. Do you want to listen to a demo?".format(selected_genre, suggestion),
         buttons = ["yes", "no"],
         action_name = "show-suggestion"
@@ -966,7 +982,7 @@ def playingMusic():
     suggestion = ALMemory.getData("pepper-vinyl/suggestion")    
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "music.png",
         text = "Playing the demo of '{}' !".format(suggestion),
         buttons = [],
         action_name = "play-music"
@@ -983,7 +999,7 @@ def showOrders():
     orders = ALMemory.getData("pepper-vinyl/orders")    
 
     create_dynamic_action(
-        image = "welcome_vinyl.png",
+        image = "vinyls.png",
         text = "Some of your orders arrived: {} ! You can get them from the cashier.".format(orders),
         buttons = [],
         action_name = "show-orders"
