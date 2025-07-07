@@ -58,7 +58,7 @@ def checkUsername():
         print(" | ".join(str(item) if item is not None else "NULL" for item in row))
 
 
-def checkFavourite():
+def checkFavouriteGenre():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
@@ -76,12 +76,38 @@ def checkFavourite():
     result = cursor.fetchone()
     conn.close()
 
-    has_favourite = "false" if result==None else "true"
-    ALMemory.raiseEvent("pepper-vinyl/has_favourite", has_favourite)
+    has_favourite_genre = "false" if result==None else "true"
+    ALMemory.raiseEvent("pepper-vinyl/has_favourite_genre", has_favourite_genre)
 
-    if has_favourite == "true":
+    if has_favourite_genre == "true":
         favourite_genre = result[0]
         ALMemory.raiseEvent("pepper-vinyl/favourite_genre", favourite_genre)
+
+
+def checkFavouriteAuthor():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT fav_author
+        FROM clients 
+        WHERE username = ?
+    ''', (username,))
+
+    result = cursor.fetchone()
+    conn.close()
+
+    has_favourite_author = "false" if result==None else "true"
+    ALMemory.raiseEvent("pepper-vinyl/has_favourite_author", has_favourite_author)
+
+    if has_favourite_author == "true":
+        favourite_author = result[0]
+        ALMemory.raiseEvent("pepper-vinyl/favourite_author", favourite_author)
 
 
 def checkStorage():
@@ -223,7 +249,7 @@ def takeAndGoBack():
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
 
-def setFavourite():
+def setFavouriteGenre():
     
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
@@ -260,7 +286,44 @@ def setFavourite():
     conn.close()
 
 
-def findSuggestion():
+def setFavouriteAuthor():
+    
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+    favourite_author = ALMemory.getData("pepper-vinyl/favourite_author")
+    
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+
+    if favourite_author != "anything":
+
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT author
+            FROM vinyls
+        ''')
+        result = cursor.fetchall()
+        all_authors = [str(i[0]) for i in result]
+
+    if favourite_author == "anything" or favourite_author in all_authors:
+
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO clients (username,fav_author)
+            VALUES (?, ?)
+        ''', (username, favourite_author))
+        conn.commit()
+
+        ALMemory.raiseEvent("pepper-vinyl/author_recognized", "true")
+    
+    else:
+        ALMemory.raiseEvent("pepper-vinyl/author_recognized", "false")
+
+    conn.close()
+
+
+def findSuggestionGenre():
     
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
@@ -299,7 +362,48 @@ def findSuggestion():
     result = str(result[0])
 
     ALMemory.raiseEvent("pepper-vinyl/suggestion", result)
+
+
+def findSuggestionAuthor():
+    
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    favourite_author = ALMemory.getData("pepper-vinyl/favourite_author")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+
+    if favourite_author == "anything":
         
+        # BASELINE
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT author
+            FROM vinyls
+        ''')
+        result = cursor.fetchall()
+        selected_author = random.choice(result)[0]
+
+    else:
+        selected_author = favourite_author
+
+    ALMemory.raiseEvent("pepper-vinyl/selected_author", selected_author)
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT vinyl
+        FROM vinyls 
+        WHERE author = ? AND quantity>0
+        ORDER BY release_date DESC
+    ''', (selected_author,))
+
+    # take the newest vinyl
+    result = cursor.fetchone()
+    conn.close()
+    result = str(result[0])
+
+    ALMemory.raiseEvent("pepper-vinyl/suggestion", result)
+
 
 def playDemo():
 
@@ -625,8 +729,11 @@ def handleFunction(value):
     if value == "check_username":
         checkUsername()
 
-    elif value == "check_favourite":
-        checkFavourite()
+    elif value == "check_favourite_genre":
+        checkFavouriteGenre()
+
+    elif value == "check_favourite_author":
+        checkFavouriteAuthor()
 
     elif value == "check_storage":
         checkStorage()
@@ -640,11 +747,17 @@ def handleFunction(value):
     elif value == "take_and_go_back":
         takeAndGoBack()
     
-    elif value == "set_favourite":
-        setFavourite()
+    elif value == "set_favourite_genre":
+        setFavouriteGenre()
     
-    elif value == "find_suggestion":
-        findSuggestion()
+    elif value == "set_favourite_author":
+        setFavouriteAuthor()
+    
+    elif value == "find_suggestion_genre":
+        findSuggestionGenre()
+
+    elif value == "find_suggestion_author":
+        findSuggestionAuthor()
     
     elif value == "play_demo":
         playDemo()
@@ -693,6 +806,9 @@ def handleFunction(value):
     
     elif value == "bow":
         bow()
+
+    elif value == "reset_posture":
+        reset_posture()
 
     else:
         raise ValueError("handler not found for value {}".format(value))
@@ -953,7 +1069,7 @@ def showGenreReleases():
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
 
 
-def showSuggestion():
+def showSuggestionGenre():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
@@ -974,17 +1090,37 @@ def showSuggestion():
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
 
 
+def showSuggestionAuthor():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    selected_author = ALMemory.getData("pepper-vinyl/selected_author")
+    suggestion = ALMemory.getData("pepper-vinyl/suggestion")
+
+    create_dynamic_action(
+        image = "vinyl.png",
+        text = "Here is the newest vinyl from {}: '{}'. Do you want to listen to a demo?".format(selected_author, suggestion),
+        buttons = ["yes", "no"],
+        action_name = "show-suggestion"
+    )
+
+    answer = handleTablet("ask_show-suggestion")
+
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
+
 def playingMusic():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
 
-    suggestion = ALMemory.getData("pepper-vinyl/suggestion")    
+    vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
 
     create_dynamic_action(
         image = "music.png",
-        text = "Playing the demo of '{}' !".format(suggestion),
-        buttons = [],
+        text = "Playing the demo of '{}' !".format(vinyl_name),
         action_name = "play-music"
     )
 
@@ -1001,7 +1137,6 @@ def showOrders():
     create_dynamic_action(
         image = "vinyls.png",
         text = "Some of your orders arrived: {} ! You can get them from the cashier.".format(orders),
-        buttons = [],
         action_name = "show-orders"
     )
 
@@ -1037,8 +1172,11 @@ def handleTabletDynamic(value):
     elif value == "show_genre_releases":
         showGenreReleases()
 
-    elif value == "show_suggestion":
-        showSuggestion()
+    elif value == "show_suggestion_genre":
+        showSuggestionGenre()
+
+    elif value == "show_suggestion_author":
+        showSuggestionAuthor()
 
     elif value == "playing_music":
         playingMusic()

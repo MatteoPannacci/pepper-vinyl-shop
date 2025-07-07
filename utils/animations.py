@@ -3,8 +3,18 @@ import sys
 import time
 import math
 import wave
+import numpy as np
 
 from session_manager import *
+
+
+def reset_posture():
+    manager = SessionManager()
+
+    ALMotion = manager.session.service("ALMotion")
+    ALRobotPosture = manager.session.service("ALRobotPosture")
+
+    ALRobotPosture.goToPosture("StandInit", 0.5)
 
 
 def reach_and_grab():

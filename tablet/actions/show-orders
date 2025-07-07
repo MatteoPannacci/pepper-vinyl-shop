@@ -1,9 +1,6 @@
 IMAGE
-<*,*,*,*>: img/welcome_vinyl.png
+<*,*,*,*>: img/vinyls.png
 ----
 TEXT
 <*,*,*,*>: Some of your orders arrived:  'thriller' ! You can get them from the cashier.
-----
-
-BUTTONS
 ----

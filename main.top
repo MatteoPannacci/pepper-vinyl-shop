@@ -7,6 +7,8 @@ concept: (myname) ["My name is" "I'm" "I am"
                    "This is" "They call me" "You can call me" 
                    "I go by" "The name's" "It's me"]
 
+concept: (myname_after) ["is my name"]
+
 concept: (greetings) ^rand["hi" "hello" "hello there" "hey there" "good morning"
                            "hey" "hi there" "good afternoon" "good evening"
                            "greetings" "good day"]
@@ -67,7 +69,7 @@ proposal: %name
     $pepper-vinyl/tablet_dyn=name_from_keyboard
 
     # --- problem in capturing the concept of name ---
-    u1: ({~myname} _*)
+    u1: ({~myname} _* {~myname_after})
         $pepper-vinyl/username=$1
         ^gotoReactivate(check_name)
 
@@ -76,7 +78,7 @@ proposal: %name
         ^gotoReactivate(check_name)
 
 
-# -- Checking Name ---
+# --- Checking Name ---
 proposal: %check_name
     $pepper-vinyl/function=idle_animation_1
     $pepper-vinyl/function=check_username
@@ -91,16 +93,17 @@ proposal: %check_name
         ~greetings $pepper-vinyl/username ! Nice to meet you!
         ^gotoReactivate(chit_chat)
 
-# -- what it does? ---
+
+
 proposal: %chit_chat
     $pepper-vinyl/function=chit_chat
 
-    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==nothing") # -- the user has no interaction to be done, therefore go to specific
-        ^gotoReactivate(specific)
+    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==nothing") # -- the user has no interaction to be done, therefore go to menu
+        ^gotoReactivate(menu)
 
     u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==orders_arrived") # -- the user has orders arrived, then show orders and enumerate them
-        $pepper-vinyl/tablet_dyn=show_orders
         $pepper-vinyl/function=idle_animation_3
+        $pepper-vinyl/tablet_dyn=show_orders
         I have seen that we got some of your the orders: $pepper-vinyl/orders .
         You can get them from the cashier.
         ^gotoReactivate(need_something_else) # -- need something else
@@ -113,6 +116,7 @@ proposal: %chit_chat
 
     u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==genre_releases")
         ^gotoReactivate(genre_releases)
+
 
 
 proposal: %today_releases
@@ -150,7 +154,7 @@ proposal: %today_releases
             ~refusal
             "e:pepper-vinyl/answer $pepper-vinyl/answer==back"
         ])
-        ^gotoReactivate(specific)
+        ^gotoReactivate(menu)
 
     # --- answer from voice ---
     u1: (_*)
@@ -175,6 +179,7 @@ proposal: %today_releases
         u2: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==false)
             I don't think that was the name of a vinyl.
             ^gotoReactivate(today_releases)
+
 
 
 proposal: %author_releases
@@ -213,7 +218,7 @@ proposal: %author_releases
             ~refusal
             "e:pepper-vinyl/answer $pepper-vinyl/answer==back"
         ])
-        ^gotoReactivate(specific)
+        ^gotoReactivate(menu)
 
     # --- answer from voice ---
     u1: (_*)
@@ -238,6 +243,7 @@ proposal: %author_releases
         u2: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==false)
             I don't think that was the name of a vinyl.
             ^gotoReactivate(author_releases)
+
 
 
 proposal: %genre_releases
@@ -276,7 +282,7 @@ proposal: %genre_releases
             ~refusal
             "e:pepper-vinyl/answer $pepper-vinyl/answer==back"
         ])
-        ^gotoReactivate(specific)
+        ^gotoReactivate(menu)
 
     # --- answer from voice ---
     u1: (_*)
@@ -304,96 +310,125 @@ proposal: %genre_releases
 
 
 
+# --- Main Menu ---
+proposal: %menu
+    $pepper-vinyl/tablet=ask_menu
+    $pepper-vinyl/function=idle_animation_1
+    Do you need something? I can provide you with suggestions, play demos or check for a specific vinyl you are interested in.
+
+    u1: ([
+            "{*} [suggestion suggestions] {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==suggestion"
+        ])
+        ^gotoReactivate(suggestions)
+
+    u1: ([
+            "{*} [demo demos] {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==demo"
+        ])
+        ^gotoReactivate(demo)
+
+    u1: ([
+            "{*} [specific certain] {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==specific"
+        ])
+        ^gotoReactivate(specific)
+
+    u1: ([
+            "{*} [nothing no nope "i'm fine"] {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==close"
+        ])
+        $pepper-vinyl/tablet=execute_goodbye
+        $pepper-vinyl/function=bow
+        Thank you for choosing our store, you can find the cashier near the entrance.
+        If you need something else you can ask me again.
+        $pepper-vinyl/function=reset
+
+        u2: (e:pepper-vinyl/finish_wait)
+            ^gotoReactivate(restart)
+
+
 # --- Asking for specific Vinyl ---
 proposal: %specific
-    $pepper-vinyl/tablet=ask_specific
-    Anything specific you are looking for?
-
-    u1: ([
-            ~acceptance
-            "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
-        ])
-        $pepper-vinyl/tablet=execute_empty-show
-        $pepper-vinyl/function=idle_animation_2
-        Tell me the name and i will look for it or you can search on the tablet.
-        $pepper-vinyl/tablet_dyn=show_vinyls
-
-        u2: (_*)
-            $pepper-vinyl/vinyl_name=$1
-            ^gotoReactivate(check_storage)
-
-        u2: (e:pepper-vinyl/tablet_finish)
-            $pepper-vinyl/vinyl_name = $pepper-vinyl/answer
-            ^gotoReactivate(check_storage)
-
-    u1: ([
-            ~refusal
-            "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
-        ])
-        $pepper-vinyl/tablet=ask_i-can-suggest-something
-        Ok, i can suggest you something if you want.
-        
-        u2: ([
-                ~acceptance
-                "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
-            ])
-            $pepper-vinyl/tablet=ask_type-of-suggestion
-            $pepper-vinyl/function=idle_animation_3
-            Do you want a suggestion based on a certain genre or do you want a personalized suggestion based on your previous interactions?
-
-            u3: ([
-                    "{*} genre {*}"
-                    "e:pepper-vinyl/answer $pepper-vinyl/answer==genre"
-                ])
-                $pepper-vinyl/function=check_favourite
-
-                u4: (e:pepper-vinyl/has_favourite $pepper-vinyl/has_favourite==true)
-                    ^gotoReactivate(give_suggestion)
-                
-                u4: (e:pepper-vinyl/has_favourite $pepper-vinyl/has_favourite==false)
-                    But before i need to know what you like.
-                    ^gotoReactivate(ask_favourite)
-
-            u3: ([
-                    "{*} interactions {*}"
-                    "e:pepper-vinyl/answer $pepper-vinyl/answer==interactions"
-                ])
-                $pepper-vinyl/function=check_interactions
-
-                u4: (e:pepper-vinyl/has_interactions $pepper-vinyl/has_interactions==true)
-                    ^gotoReactivate(recommendation)
-
-                u4: (e:pepper-vinyl/has_interactions $pepper-vinyl/has_interactions==false)
-                    I'm sorry but i don't know of any your previous interactions.
-                    # could ask questions to add to the database!
-                    ^gotoReactivate(need_something_else)
-
-
-        u2: ([
-                ~refusal
-                "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
-            ])
-            ^gotoReactivate(need_something_else)
+    $pepper-vinyl/tablet=execute_show-vinyls-empty
+    $pepper-vinyl/function=idle_animation_2
+    Here is the catalogue of the vinyls available, you can also directly tell me the name of what you are looking for.
+    $pepper-vinyl/tablet_dyn=show_vinyls
 
     u1: (_*)
         $pepper-vinyl/vinyl_name=$1
         ^gotoReactivate(check_storage)
 
+    u1: (e:pepper-vinyl/tablet_finish)
+        $pepper-vinyl/vinyl_name = $pepper-vinyl/answer
+        ^gotoReactivate(check_storage)
 
+
+
+# --- Provide Suggestions ---
+proposal: %suggestions
+    $pepper-vinyl/tablet=ask_type-of-suggestion
+    $pepper-vinyl/function=idle_animation_3
+    I can provide you suggestions based on your favourite genre or author or I can think of something you may like based on previous interactions we had.
+
+    u1: ([
+            "{*} genre {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==genre"
+        ])
+        $pepper-vinyl/function=check_favourite_genre
+
+        u2: (e:pepper-vinyl/has_favourite_genre $pepper-vinyl/has_favourite_genre==true)
+            ^gotoReactivate(give_suggestion_genre)
+        
+        u2: (e:pepper-vinyl/has_favourite_genre $pepper-vinyl/has_favourite_genre==false)
+            $pepper-vinyl/tablet=execute_i-dont-know-your-favourite
+            Ok, but before dding that I need to know which genre you like!
+            ^gotoReactivate(ask_favourite_genre)
+
+    u1: ([
+            "{*} author {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==author"          
+        ])
+        $pepper-vinyl/function=check_favourite_author
+
+        u2: (e:pepper-vinyl/has_favourite_author $pepper-vinyl/has_favourite_author==true)
+            ^gotoReactivate(give_suggestion_author)
+        
+        u2: (e:pepper-vinyl/has_favourite_author $pepper-vinyl/has_favourite_author==false)
+            $pepper-vinyl/tablet=execute_i-dont-know-your-favourite
+            Ok, but before dding that I need to know which author you like!
+            ^gotoReactivate(ask_favourite_author)
+
+    u1: ([
+            "{*} [interaction interactions] {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==interactions"
+        ])
+        $pepper-vinyl/function=check_interactions
+
+        u2: (e:pepper-vinyl/has_interactions $pepper-vinyl/has_interactions==true)
+            ^gotoReactivate(recommendation)
+
+        u2: (e:pepper-vinyl/has_interactions $pepper-vinyl/has_interactions==false)
+            $pepper-vinyl/tablet=execute_i-dont-have-previous-interactions
+            I'm sorry but i don't know of any your previous interactions.
+            # could ask questions to add to the database!
+            ^gotoReactivate(need_something_else)
+
+
+
+# --- Check in the Storage ---
 proposal: %check_storage
-    $pepper-vinyl/tablet=execute_check-storage
-    I will look in our storage database for $pepper-vinyl/vinyl_name .
     $pepper-vinyl/function="check_storage"
     
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==available)
         $pepper-vinyl/tablet=execute_vinyl-found
-        I found the vinyl you were looking for.
+        The vinyl you were looking for is available right now!
         ^gotoReactivate(get_the_vinyl)
     
     u1: (e:pepper-vinyl/vinyl_found $pepper-vinyl/vinyl_found==out_of_stock)
         $pepper-vinyl/tablet_dyn=order_vinyl
         $pepper-vinyl/function=idle_animation_1
-        We don't have it in storage right now but i can order it for you.
+        I'm sorry! We don't have it in storage right now but i can order it for you.
         Do you want me to procede?
 
         u2: ([
@@ -417,6 +452,7 @@ proposal: %check_storage
 
 
 
+# --- Point to the Vinyl and Guide the User ---
 proposal: %get_the_vinyl
     $pepper-vinyl/function="point_to_vinyl"
 
@@ -424,6 +460,7 @@ proposal: %get_the_vinyl
         $pepper-vinyl/tablet=ask_get-the-vinyl
         The vinyls is right there.
         I can guide you to it or take it for you. Otherwise if you prefer you can go by yourself.
+        $pepper-vinyl/function=reset_posture
 
         u2: ([
                 "{*} guide {*}"
@@ -461,32 +498,56 @@ proposal: %get_the_vinyl
 
 
 
-proposal: %ask_favourite
+# --- Ask the Favourite Genre of the User ---
+proposal: %ask_favourite_genre
     What is you favourite genre? 
 
     u1: (~dont_know)
         $pepper-vinyl/favourite_genre="anything"
-        $pepper-vinyl/function="set_favourite"
+        $pepper-vinyl/function="set_favourite_genre"
         ^gotoReactivate(give_suggestion)
 
     u1: (_*)
         $pepper-vinyl/favourite_genre=$1
-        $pepper-vinyl/function="set_favourite"
+        $pepper-vinyl/function="set_favourite_genre"
 
         u2: (e:pepper-vinyl/genre_recognized $pepper-vinyl/genre_recognized==true)
             ^gotoReactivate(give_suggestion)
 
         u2: (e:pepper-vinyl/genre_recognized $pepper-vinyl/genre_recognized==false)
             That doesn't look like a music genre, could you try something else?
-            ^gotoReactivate(ask_favourite)
+            ^gotoReactivate(ask_favourite_genre)
 
 
 
-proposal: %give_suggestion
-    $pepper-vinyl/function="find_suggestion"
+# --- Ask the Favourite Author of the User ---
+proposal: %ask_favourite_author
+    What is you favourite author? 
+
+    u1: (~dont_know)
+        $pepper-vinyl/favourite_author="anything"
+        $pepper-vinyl/function="set_favourite_author"
+        ^gotoReactivate(give_suggestion)
+
+    u1: (_*)
+        $pepper-vinyl/favourite_author=$1
+        $pepper-vinyl/function="set_favourite_author"
+
+        u2: (e:pepper-vinyl/author_recognized $pepper-vinyl/author_recognized==true)
+            ^gotoReactivate(give_suggestion)
+
+        u2: (e:pepper-vinyl/author_recognized $pepper-vinyl/author_recognized==false)
+            That doesn't look like a music author, could you try something else?
+            ^gotoReactivate(ask_favourite_author)
+
+
+
+# --- Provide Suggestion based on Favourite Genre ---
+proposal: %give_suggestion_genre
+    $pepper-vinyl/function="find_suggestion_genre"
 
     u1: (e:pepper-vinyl/suggestion)
-        $pepper-vinyl/tablet_dyn=show_suggestion
+        $pepper-vinyl/tablet_dyn=show_suggestion_genre
         Here is the newest vinyl from $pepper-vinyl/selected_genre:  "$pepper-vinyl/suggestion" .
         Do you want to listen to a demo of it?
 
@@ -494,48 +555,8 @@ proposal: %give_suggestion
                 ~acceptance
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
             ])
-            $pepper-vinyl/tablet_dyn=playing_music
-            Ok, i will play a demo from $pepper-vinyl/suggestion .
-            $pepper-vinyl/function="play_demo"
-
-            u3: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==happy)
-                $pepper-vinyl/tablet=ask_do-you-want-to-buy
-                I see that you really liked the demo. Are you interested in buying the vinyl?
-
-                u4: ([
-                        ~acceptance
-                        "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
-                    ])
-                    $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
-                    ^gotoReactivate(get_the_vinyl)
-
-                u4: ([
-                        ~refusal
-                        "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
-                    ])
-                    ^gotoReactivate(need_something_else)                
-
-            u3: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==neutral)
-                $pepper-vinyl/tablet=ask_do-you-want-to-buy
-                I see you have mixed emotions about this demo. Despite that, are you interested in buying the vinyl?
-
-                u4: ([
-                        ~acceptance
-                        "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
-                    ])
-                    $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
-                    ^gotoReactivate(get_the_vinyl)
-
-                u4: ([
-                        ~refusal
-                        "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
-                    ])
-                    ^gotoReactivate(need_something_else)
-
-
-            u3: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==disgusted)
-                Oh, I see that you didn't like it very much... I won't play it again, let's try with something else.
-                ^gotoReactivate(need_something_else)
+            $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
+            ^gotoReactivate(play_vinyl)
 
         u2: ([
                 ~refusal
@@ -559,6 +580,104 @@ proposal: %give_suggestion
 
 
 
+# --- Provide Suggestion based on Favourite Author ---
+proposal: %give_suggestion_author
+    $pepper-vinyl/function="find_suggestion_author"
+
+    u1: (e:pepper-vinyl/suggestion)
+        $pepper-vinyl/tablet_dyn=show_suggestion_author
+        Here is the newest vinyl from $pepper-vinyl/selected_author:  "$pepper-vinyl/suggestion" .
+        Do you want to listen to a demo of it?
+
+        u2: ([
+                ~acceptance
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+            ])
+            $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
+            ^gotoReactivate(play_vinyl)
+
+        u2: ([
+                ~refusal
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+            ])
+            $pepper-vinyl/tablet=ask_do-you-want-to-buy
+            Do you want to buy it?
+
+            u3: ([
+                    ~acceptance
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+                ])
+                $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
+                ^gotoReactivate(get_the_vinyl)
+
+            u3: ([
+                    ~refusal
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+                ])
+                ^gotoReactivate(need_something_else)
+
+
+
+proposal: %demo
+    $pepper-vinyl/tablet=execute_show-vinyls-empty
+    $pepper-vinyl/function=idle_animation_2
+    Here is the catalogue of the vinyls available, you can also directly tell me the name of what you are looking for.
+    $pepper-vinyl/tablet_dyn=show_vinyls
+
+    u1: (_*)
+        $pepper-vinyl/vinyl_name=$1
+        ^gotoReactivate(play_vinyl)
+
+    u1: (e:pepper-vinyl/tablet_finish)
+        $pepper-vinyl/vinyl_name = $pepper-vinyl/answer
+        ^gotoReactivate(play_vinyl)
+
+
+
+proposal: %play_vinyl
+    $pepper-vinyl/tablet_dyn=playing_music
+    Ok! I'll start playing a demo from $pepper-vinyl/vinyl_name
+    $pepper-vinyl/function=play_demo
+
+        u1: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==happy)
+            $pepper-vinyl/tablet=ask_do-you-want-to-buy
+            I see that you really liked the demo. Are you interested in buying the vinyl?
+
+            u2: ([
+                    ~acceptance
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+                ])
+                ^gotoReactivate(check_storage)
+
+            u2: ([
+                    ~refusal
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+                ])
+                ^gotoReactivate(need_something_else)                
+
+        u1: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==neutral)
+            $pepper-vinyl/tablet=ask_do-you-want-to-buy
+            I see you have mixed emotions about this demo. Despite that, are you interested in buying the vinyl?
+
+            u2: ([
+                    ~acceptance
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+                ])
+                ^gotoReactivate(check_storage)
+
+            u2: ([
+                    ~refusal
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+                ])
+                ^gotoReactivate(need_something_else)
+
+
+        u1: (e:pepper-vinyl/finish_wait $pepper-vinyl/reaction==disgusted)
+            Oh, I see that you didn't like it very much... I won't play it again, let's try with something else.
+            ^gotoReactivate(need_something_else)
+
+
+
 proposal: %recommendation
     $pepper-vinyl/tablet=execute_computing-recommendations
     I will compute some recommendations based on your interactions, it might take a while so wait here!
@@ -579,7 +698,7 @@ proposal: %recommendation
                 $pepper-vinyl/function=check_recommendation_request
 
                 u4: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==true)
-                    ^gotoReactivate(get_the_vinyl)
+                    ^gotoReactivate(check_storage)
                 
                 u4: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==false)
                     I don't think that was the name of a vinyl.
@@ -591,7 +710,7 @@ proposal: %recommendation
                 $pepper-vinyl/function=check_recommendation_request
 
                 u4: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==true)
-                    ^gotoReactivate(get_the_vinyl)
+                    ^gotoReactivate(check_storage)
                 
                 u4: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==false)
                     I don't think that was the name of a vinyl.
@@ -609,7 +728,7 @@ proposal: %recommendation
             $pepper-vinyl/function=check_recommendation_request
 
             u3: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==true)
-                ^gotoReactivate(get_the_vinyl)
+                ^gotoReactivate(check_storage)
             
             u3: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==false)
                 I don't think that was the name of a vinyl.
@@ -621,11 +740,12 @@ proposal: %recommendation
             $pepper-vinyl/function=check_recommendation_request
 
             u3: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==true)
-                ^gotoReactivate(get_the_vinyl)
+                ^gotoReactivate(check_storage)
             
             u3: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==false)
                 I don't think that was the name of a vinyl.
                 ^gotoReactivate(retry_recommendation)
+
 
 
 proposal: %need_something_else
@@ -636,7 +756,7 @@ proposal: %need_something_else
             ~acceptance
             "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
         ])
-        ^gotoReactivate(specific)
+        ^gotoReactivate(menu)
 
     u1: ([
             ~refusal

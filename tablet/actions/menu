@@ -1,0 +1,16 @@
+IMAGE
+<*,*,*,*>:  img/default.png
+----
+TEXT
+<*,*,*,*>:  Do you need something?
+----
+BUTTONS
+suggestion
+<*,*,*,*>:  Give me a Suggestion
+demo
+<*,*,*,*>:  Play a Demo
+specific
+<*,*,*,*>:  Looking for something Specific
+close
+<*,*,*,*>:  <=
+----
