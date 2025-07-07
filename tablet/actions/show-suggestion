@@ -1,0 +1,13 @@
+IMAGE
+<*,*,*,*>: img/welcome_vinyl.png
+----
+TEXT
+<*,*,*,*>: Here is the newest vinyl from classical: 'symphony no 5'. Do you want to listen to a demo?
+----
+
+BUTTONS
+yes
+<*,*,*,*>: Yes
+no
+<*,*,*,*>: No
+----
