@@ -51,9 +51,16 @@ Project developed for the modules of "Human-Robot Interaction" and "Robot Benchm
 
 10. Access to modim from [http://localhost:80](http://localhost:80)
 
-11. Start the program (from window 4 of the tmux session)
+11. Train the emotion classifier
 
     ```bash
     cd path/to/pepper-vinyl-shop
-    python main.py
+    python train_classifier.py
+    ```
+
+12. Start the program (from window 4 of the tmux session)
+
+    ```bash
+    cd path/to/pepper-vinyl-shop
+    python main.py --pport $PEPPER_PORT
     ```
