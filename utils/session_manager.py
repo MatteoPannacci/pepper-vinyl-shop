@@ -49,6 +49,7 @@ class SessionManager(object):
         vinyls_df = pd.read_csv(os.path.join(MAIN_DIR, "data/vinyls.csv"))
         orders_df = pd.read_csv(os.path.join(MAIN_DIR, "data/orders.csv"))
         buys_df = pd.read_csv(os.path.join(MAIN_DIR, "data/buys.csv"))
+        ratings_df = pd.read_csv(os.path.join(MAIN_DIR, "data/ratings.csv"))
 
         conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
 
@@ -56,13 +57,14 @@ class SessionManager(object):
         vinyls_df.to_sql("vinyls_csv", conn, if_exists="replace", index=False)
         orders_df.to_sql("orders_csv", conn, if_exists="replace", index=False)
         buys_df.to_sql("buys_csv", conn, if_exists="replace", index=False)
+        ratings_df.to_sql("ratings_csv", conn, if_exists="replace", index=False)
 
         conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
 
-        
         cursor.execute("DROP TABLE IF EXISTS orders;")
         cursor.execute("DROP TABLE IF EXISTS buys;")
+        cursor.execute("DROP TABLE IF EXISTS ratings;")
         cursor.execute("DROP TABLE IF EXISTS clients;")
         cursor.execute("DROP TABLE IF EXISTS vinyls;")
 
@@ -129,6 +131,20 @@ class SessionManager(object):
             SELECT * FROM orders_csv;
         """)
         cursor.execute("DROP TABLE orders_csv;")
+
+        cursor.execute("""
+        CREATE TABLE ratings (
+            username TEXT,
+            rating INTEGER,
+            FOREIGN KEY (username) REFERENCES clients(username)
+        );
+        """)
+
+        cursor.execute("""
+            INSERT INTO ratings 
+            SELECT * FROM ratings_csv;
+        """)
+        cursor.execute("DROP TABLE ratings_csv;")
 
         conn.commit()
         conn.close()

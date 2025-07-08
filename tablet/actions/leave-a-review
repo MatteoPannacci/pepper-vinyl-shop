@@ -1,0 +1,12 @@
+IMAGE
+<*, *, *, *>:  img/default.png
+----
+TEXT
+<*,*,*,*>: Do you want to leave a review?
+----
+BUTTONS
+yes
+<*,*,*,*>: Yes
+no
+<*,*,*,*>: No
+----

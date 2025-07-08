@@ -1,0 +1,18 @@
+IMAGE
+<*, *, *, *>:  img/default.png
+----
+TEXT
+<*,*,*,*>: How would you rate the service between 1 and 5?
+----
+BUTTONS
+1
+<*,*,*,*>: 1
+2
+<*,*,*,*>: 2
+3
+<*,*,*,*>: 3
+4
+<*,*,*,*>: 4
+5
+<*,*,*,*>: 5
+----

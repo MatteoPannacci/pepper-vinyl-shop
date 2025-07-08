@@ -723,6 +723,25 @@ def chitChat():
         conn.close()
 
 
+def saveRating():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/rating")
+    rating = ALMemory.getData("pepper-vinyl/username")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO ratings (username,rating)
+        VALUES (?, ?)
+    ''', (username, rating))
+    conn.commit()
+
+
 
 def handleFunction(value):
 
@@ -743,22 +762,22 @@ def handleFunction(value):
 
     elif value == "guide_client":
         guideClient()
-    
+
     elif value == "take_and_go_back":
         takeAndGoBack()
-    
+
     elif value == "set_favourite_genre":
         setFavouriteGenre()
-    
+
     elif value == "set_favourite_author":
         setFavouriteAuthor()
-    
+
     elif value == "find_suggestion_genre":
         findSuggestionGenre()
 
     elif value == "find_suggestion_author":
         findSuggestionAuthor()
-    
+
     elif value == "play_demo":
         playDemo()
 
@@ -791,24 +810,27 @@ def handleFunction(value):
 
     elif value == "greeting_animation":
         greeting_animation()
-    
+
     elif value == "idle_animation_1":
         idle_animation_1()
-    
+
     elif value == "idle_animation_2":
         idle_animation_2()
     
     elif value == "idle_animation_3":
         idle_animation_3()
-    
+
     elif value == "thinking_animation":
         thinking_animation()
-    
+
     elif value == "bow":
         bow()
 
     elif value == "reset_posture":
         reset_posture()
+
+    elif value == "save_rating":
+        saveRating()
 
     else:
         raise ValueError("handler not found for value {}".format(value))
