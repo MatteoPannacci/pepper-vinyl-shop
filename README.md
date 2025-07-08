@@ -32,7 +32,7 @@ Project developed for the modules of "Human-Robot Interaction" and "Robot Benchm
 
 6. Access to choregraphe from [http://localhost:3000](http://localhost:3000) and activate pepper with the key from [here](https://aldebaran.com/en/support/kb/softwares/downloads-softwares/pepper-2-5-downloads/)
   
-7. Load pepper from "edit/preferences" and read its port, load the layout provided in the repository from "view"
+7. Load pepper from "edit/preferences" and read its port, load the choregraphe layout provided in the repository from "view"
 
 8. Start the modim web server (from window 3 of the tmux session)
 
