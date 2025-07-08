@@ -502,7 +502,7 @@ def checkInteractions():
     result = cursor.fetchone()
     conn.close()
 
-    has_interactions = "false" if result[0]==None else "true"
+    has_interactions = "false" if result==None else "true"
     ALMemory.raiseEvent("pepper-vinyl/has_interactions", has_interactions)
 
 
