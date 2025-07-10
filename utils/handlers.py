@@ -49,13 +49,9 @@ def checkUsername():
             VALUES (?, ?, ?, ?)
         ''', (username, None, None, None))
         conn.commit()
+        print("new entry in CLIENTS: <{},{},{},{}>".format(username, None, None, None))
 
-    cursor.execute('SELECT * FROM clients')
-    rows = cursor.fetchall()
     conn.close()
-
-    for row in rows:
-        print(" | ".join(str(item) if item is not None else "NULL" for item in row))
 
 
 def checkFavouriteGenre():
@@ -152,10 +148,16 @@ def orderVinyl():
         INSERT INTO buys (client,vinyl)
         VALUES (?, ?)
     ''', (username, vinyl_name))
+    print("new entry in BUYS: <{},{}>".format(username, vinyl_name))
+
+
     cursor.execute('''
         INSERT INTO orders (vinyl,client,status)
         VALUES (?, ?, ?)
     ''', (vinyl_name, username, "pending"))
+    print("new entry in ORDERS: <{},{}, {}>".format(username, vinyl_name, "pending"))
+
+
     conn.commit()
     conn.close()
 
@@ -171,12 +173,13 @@ def guideClient():
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT x, y
+        SELECT x, y, quantity
         FROM  vinyls
         WHERE vinyl = ?
     ''', (vinyl_name,))
 
     result = cursor.fetchone()
+    quantity = int(result[2])
 
     move_to(result[0], result[1], None)
     offer_item()
@@ -185,9 +188,10 @@ def guideClient():
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE vinyls
-        SET quantity = quantity - 1
+        SET quantity = ?
         WHERE vinyl = ?
-    ''', (vinyl_name,))
+    ''', (quantity-1, vinyl_name))
+    print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
     conn.commit()
 
     cursor = conn.cursor()
@@ -195,6 +199,7 @@ def guideClient():
         INSERT INTO buys (client,vinyl)
         VALUES (?, ?)
     ''', (username, vinyl_name))
+    print("new entry in BUYS: <{},{}>".format(username, vinyl_name))
     conn.commit()
 
     conn.close()
@@ -217,12 +222,13 @@ def takeAndGoBack():
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT x, y
+        SELECT x, y, quantity
         FROM  vinyls
         WHERE vinyl = ?
     ''', (vinyl_name,))
 
     result = cursor.fetchone()
+    quantity = int(result[2])
 
     move_to(result[0], result[1], None)
     reach_and_grab()
@@ -232,9 +238,10 @@ def takeAndGoBack():
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE vinyls
-        SET quantity = quantity - 1
+        SET quantity = ?
         WHERE vinyl = ?
-    ''', (vinyl_name,))
+    ''', (quantity-1, vinyl_name))
+    print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
     conn.commit()
 
     cursor = conn.cursor()
@@ -242,6 +249,7 @@ def takeAndGoBack():
         INSERT INTO buys (client,vinyl)
         VALUES (?, ?)
     ''', (username, vinyl_name))
+    print("new entry in BUYS: <{},{}>".format(username, vinyl_name))
     conn.commit()
 
     conn.close()
@@ -273,9 +281,11 @@ def setFavouriteGenre():
 
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO clients (username,fav_genre)
-            VALUES (?, ?)
-        ''', (username, favourite_genre))
+            UPDATE clients (username,fav_genre,fav_author)
+            SET fav_genre = ?
+            WHERE username = ?
+        ''', (favourite_genre, username))
+        print("updated fav_genre in CLIENTS entry {}: {}".format(username, favourite_genre))
         conn.commit()
 
         ALMemory.raiseEvent("pepper-vinyl/genre_recognized", "true")
@@ -310,9 +320,11 @@ def setFavouriteAuthor():
 
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO clients (username,fav_author)
-            VALUES (?, ?)
-        ''', (username, favourite_author))
+            UPDATE clients (username,fav_genre,fav_author)
+            SET fav_author = ?
+            WHERE username = ?
+        ''', (favourite_author, username))
+        print("updated fav_author in CLIENTS entry {}: {}".format(username, favourite_author))
         conn.commit()
 
         ALMemory.raiseEvent("pepper-vinyl/author_recognized", "true")
@@ -437,6 +449,8 @@ def reset():
 
     username = ALMemory.getData("pepper-vinyl/username")
 
+    ALMemory.raiseEvent("pepper-vinyl/counter", "0")
+
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
     cursor = conn.cursor()
 
@@ -445,6 +459,7 @@ def reset():
         SET last_visit = ?
         WHERE username = ?
     ''', (date.today(), username))
+    print("updated last_visit in CLIENTS entry {}: {}".format(username, date.today()))
     conn.commit()
 
     conn.close()
@@ -739,8 +754,29 @@ def saveRating():
         INSERT INTO ratings (username,rating)
         VALUES (?, ?)
     ''', (username, rating))
+    print("new entry in RATINGS: <{},{}>".format(username, rating))
     conn.commit()
 
+
+def checkCounter():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    counter = int(ALMemory.getData("pepper-vinyl/counter")) + 1
+    ALMemory.raiseEvent("pepper-vinyl/counter", str(counter))
+
+    if counter >= 3:
+        ALMemory.raiseEvent("pepper-vinyl/undecided", "true")
+    else:
+        ALMemory.raiseEvent("pepper-vinyl/undecided", "false")
+
+
+def userPassing():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+    ALMemory.raiseEvent("pepper-vinyl/user_passing", "true")
 
 
 def handleFunction(value):
@@ -831,6 +867,12 @@ def handleFunction(value):
 
     elif value == "save_rating":
         saveRating()
+
+    elif value == "check_counter":
+        checkCounter()
+
+    elif value == "user_passing":
+        userPassing()
 
     else:
         raise ValueError("handler not found for value {}".format(value))

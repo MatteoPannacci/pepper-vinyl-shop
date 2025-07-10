@@ -12,11 +12,12 @@ from utils import *
 MAIN_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-# mute tensorflow deprecation warnings
+# mute tensorflow deprecation warnings and ws_client logging
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('ws_client').setLevel(logging.CRITICAL + 1)
 
 
 
@@ -65,6 +66,7 @@ def main():
     for key in ALMemory.getDataList("pepper-vinyl/"):
         ALMemory.insertData(key, "")
         print("Deleted: {}".format(key))
+    ALMemory.raiseEvent("pepper-vinyl/counter", "0")
 
     # connect handlers
     function_sub = ALMemory.subscriber("pepper-vinyl/function")
@@ -74,22 +76,23 @@ def main():
     tablet_dyn_sub = ALMemory.subscriber("pepper-vinyl/tablet_dyn")
     tablet_dyn_sub.signal.connect(handleTabletDynamic)
 
-    print("Pepper is Running... use Ctrl+C to finish the execution.")    
-    handleTablet("ask_welcome")
+    print("Pepper is Running... use Ctrl+C to finish the execution.")
+    ALMemory.raiseEvent("pepper-vinyl/tablet", "ask_welcome")
 
     # busy waiting
     while True:
 
         try:
-            time.sleep(2)
+
+            command = raw_input()
+
+            if command == "passing_by":
+                ALMemory.raiseEvent("pepper-vinyl/function", "user_passing")
 
         except KeyboardInterrupt:
             return graceful_close(ALDialog, topic_name)
 
 
-# we can handle touching and events in general through the topics
-# we can use a finish_wait variable to synchronize the modim stuff
-# can we use the tablet to play music?
 # database vinyl-description + interaction "tell me more about it"
 
 

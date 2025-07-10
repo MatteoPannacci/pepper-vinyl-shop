@@ -5,6 +5,8 @@ import sqlite3
 import pandas as pd
 import os
 import sys
+import io
+import contextlib
 
 from .tablet import init_client
 
@@ -151,8 +153,8 @@ class SessionManager(object):
 
     
     def initialize_tablet(self):
-
-        with suppress_output():        
+    
+        with filtered_print(filter):
             self.mws = ModimWSClient()
             path = os.path.join(TABLET_DIR, "scripts/placeholder")
             self.mws.setDemoPathAuto(path)
@@ -161,34 +163,60 @@ class SessionManager(object):
 
 
     def ask_modim(self, action, timeout=999):
-        with suppress_output():
+        with filtered_print(filter):
             return self.mws.csend("im.ask('{}', timeout={})".format(action, timeout))
 
 
     def execute_modim(self, action):
-
-        # remove old buttons
-        self.mws.csend("im.executeModality('BUTTONS', [])")
-        
-        with suppress_output():
+        with filtered_print(filter):
+            self.mws.csend("im.executeModality('BUTTONS', [])")
             return self.mws.csend("im.execute('{}')".format(action))
 
 
 
-class suppress_output(object):
-    def __enter__(self):
-        # Open a null file
-        self.null_fds = [os.open(os.devnull, os.O_RDWR)]
-        # Save the current stdout and stderr
-        self.save_fds = [os.dup(1), os.dup(2)]
-        # Redirect stdout and stderr to devnull
-        os.dup2(self.null_fds[0], 1)
-        os.dup2(self.null_fds[0], 2)
+import sys
+import os
+from contextlib import contextmanager
+from io import StringIO
 
-    def __exit__(self, *_):
-        # Restore stdout and stderr
-        os.dup2(self.save_fds[0], 1)
-        os.dup2(self.save_fds[1], 2)
-        # Close all file descriptors
-        for fd in self.null_fds + self.save_fds:
-            os.close(fd)
+class FilteredStdout:
+    def __init__(self, filter_func, original_stdout):
+        self.filter_func = filter_func
+        self.original_stdout = original_stdout
+        self.buffer = ''
+
+    def write(self, s):
+        # Accumulate in buffer, but flush lines on newline
+        self.buffer += s
+        while '\n' in self.buffer:
+            line, self.buffer = self.buffer.split('\n', 1)
+            # Apply filter
+            if self.filter_func(line):
+                self.original_stdout.write(line + '\n')
+
+    def flush(self):
+        # Flush any remaining content
+        if self.buffer:
+            if self.filter_func(self.buffer):
+                self.original_stdout.write(self.buffer)
+            self.buffer = ''
+        self.original_stdout.flush()
+
+
+def filter(text):
+    allowed = True
+    for t in ["WS client::", "ModimWSClient::", "Reply: (00)", "Reply: (OK)", "im.init()", "setDemoPathAuto"]:
+        if t in text:
+            allowed = False
+    return allowed
+
+
+@contextmanager
+def filtered_print(filter_func):
+    original_stdout = sys.stdout
+    sys.stdout = FilteredStdout(filter_func, original_stdout)
+    try:
+        yield
+    finally:
+        sys.stdout.flush()
+        sys.stdout = original_stdout

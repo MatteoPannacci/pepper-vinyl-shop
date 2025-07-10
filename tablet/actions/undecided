@@ -1,0 +1,12 @@
+IMAGE
+<*, *, *, *>:  img/default.png
+----
+TEXT
+<*,*,*,*>: You seem undecided! Would you like some suggestions?
+----
+BUTTONS
+yes
+<*,*,*,*>: Yes
+no
+<*,*,*,*>: No
+----

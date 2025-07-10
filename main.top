@@ -29,6 +29,7 @@ concept: (rating) ["1" "2" "3" "4" "5"]
 u: ([
         ~greetings
         "e:pepper-vinyl/answer $pepper-vinyl/answer==start_button"
+        e:pepper-vinyl/user_passing
     ])
     ^gotoReactivate(begin)
 
@@ -446,11 +447,40 @@ proposal: %get_the_vinyl
 
         u2: ([
                 "{*} myself {*}"
-                "{*} forget {*}"
-                "e:pepper-vinyl/answer $pepper-vinyl/answer==forget_it"
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==by_myself"
             ])
             ^gotoReactivate(need_something_else)
+
+        u2: ([
+                "{*} forget {*}"
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==forget_it"
+
+            ])
+            ^gotoReactivate(check_counter)
+
+
+
+proposal: %check_counter
+    $pepper-vinyl/function=check_counter
+
+    u1: ("e:pepper-vinyl/undecided $pepper-vinyl/undecided=true")
+        $pepper-vinyl/tablet=ask_undecided
+        You seem undecided! Would you like some suggestions to help you decide?
+
+        u2: ([
+                ~acceptance
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+            ])
+            ^gotoReactivate(suggestions)
+
+        u2: ([
+                ~refusal
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+            ])
+            ^gotoReactivate(need_something_else)
+
+    u1: ("e:pepper-vinyl/undecided $pepper-vinyl/undecided=false")
+        ^gotoReactivate(need_something_else)
 
 
 

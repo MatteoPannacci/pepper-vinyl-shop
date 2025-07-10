@@ -141,6 +141,7 @@ def wait_animation(wait_time):
     time.sleep(wait_time)  # Duration of the pause
     ALMotion.setStiffnesses("Body", 0.0)
 
+
 def idle_animation_1():
     manager = SessionManager()
     ALMotion = manager.session.service("ALMotion")
@@ -213,6 +214,7 @@ def idle_animation_1():
         ],
         0.3
     )
+
 
 def idle_animation_2():
     manager = SessionManager()
@@ -387,11 +389,6 @@ def greeting_animation():
     for _ in range(3):
         ALMotion.angleInterpolation(wave_names, wave_1, wave_time, True)
         ALMotion.angleInterpolation(wave_names, wave_2, wave_time, True)
-
-    # Quick nod
-    ALMotion.angleInterpolation(["HeadPitch"], [0.2], [0.2], True)
-    ALMotion.angleInterpolation(["HeadPitch"], [-0.1], [0.2], True)
-    ALMotion.angleInterpolation(["HeadPitch"], [0.0], [0.2], True)
 
     # Return to neutral posture
     ALRobotPosture.goToPosture("StandInit", 0.4)
