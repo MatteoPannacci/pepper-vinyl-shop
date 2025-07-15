@@ -2,7 +2,7 @@ IMAGE
 <*,*,*,*>:  img/vinyl.png
 ----
 TEXT
-<*,*,*,*>: That was the demo. Are you interested in buying this vinyl?
+<*,*,*,*>: Looks like your vinyl is not where it should be! Do you want to order it instead?
 ----
 BUTTONS
 yes

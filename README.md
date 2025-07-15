@@ -30,11 +30,21 @@ Project developed for the modules of "Human-Robot Interaction" and "Robot Benchm
     ./choregraphe
     ```
 
-6. Access to choregraphe from [http://localhost:3000](http://localhost:3000) and activate pepper with the key from [here](https://aldebaran.com/en/support/kb/softwares/downloads-softwares/pepper-2-5-downloads/)
-  
-7. Load pepper from "edit/preferences" and read its port, load the choregraphe layout provided in the repository from "view"
+6. Access to choregraphe from [http://localhost:3000](http://localhost:3000) and setup the instance:
 
-8. Start the modim web server (from window 3 of the tmux session)
+    1. Activate pepper with the key from [here](https://aldebaran.com/en/support/kb/softwares/downloads-softwares/pepper-2-5-downloads/)
+  
+    2. Load pepper from "edit -> preferences -> virtual robot" and read its port
+    
+    3. Load the choregraphe layout provided in the repository from "view -> load layout"
+
+    4. Load the choregraphe project present on the repository from "file -> open project"
+
+    5. Connect to the robot with "connection -> Connect to virtual robot"
+
+    6. Upload the project on the robot with "Upload to the robot and Play"
+
+7. Start the modim web server (from window 3 of the tmux session)
 
     ```bash
     cd ~/src/modim/src/GUI
@@ -42,23 +52,23 @@ Project developed for the modules of "Human-Robot Interaction" and "Robot Benchm
     python ws_server.py -robot pepper
     ```
 
-9.  Open the modim page (from a new terminal window)
+8. Open the modim page (from a new terminal window)
 
     ```bash
     cd path/to/hri_software/docker
     ./run_nginx.bash path/to/pepper-vinyl-shop/tablet
     ```
 
-10. Access to modim from [http://localhost:80](http://localhost:80)
+9. Access to modim from [http://localhost:80](http://localhost:80)
 
-11. Train the emotion classifier
+10. Train the emotion classifier
 
     ```bash
     cd path/to/pepper-vinyl-shop
     python train_classifier.py
     ```
 
-12. Start the program (from window 4 of the tmux session)
+11. Start the program (from window 4 of the tmux session)
 
     ```bash
     cd path/to/pepper-vinyl-shop

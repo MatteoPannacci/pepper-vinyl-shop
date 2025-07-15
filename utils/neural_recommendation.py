@@ -17,6 +17,7 @@ def build_graph(seed=42):
     df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
     users = df['client'].unique().tolist()
     items = df['vinyl'].unique().tolist()
+    # USE DATE?
 
     user2id = {u: i for i, u in enumerate(users)}
     item2id = {v: i + len(users) for i, v in enumerate(items)}
@@ -116,6 +117,7 @@ def train_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024, top_k=1, n
 
     # Load user positive interactions
     df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
+
     user_pos = {}
     for _, row in df.iterrows():
         uid = user2id[row['client']]
@@ -126,7 +128,7 @@ def train_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024, top_k=1, n
 
     # Build seen items for masking
     seen_items = {u: [] for u in user_pos.keys()}
-    for u, i in train_edges:
+    for u, i, _ in train_edges:
         uid = user2id[u]
         iid = item2id[i]
         seen_items[uid].append(iid)

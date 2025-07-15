@@ -34,13 +34,14 @@ def checkUsername():
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT 1 
+        SELECT last_visit
         FROM clients 
         WHERE username = ?
         LIMIT 1
     ''', (username,))
     
-    recognized = "true" if cursor.fetchone() else "false"
+    result = cursor.fetchone()
+    recognized = "true" if result else "false"
     ALMemory.raiseEvent("pepper-vinyl/recognized", recognized)
 
     if recognized == "false":
@@ -50,6 +51,15 @@ def checkUsername():
         ''', (username, None, None, None))
         conn.commit()
         print("new entry in CLIENTS: <{},{},{},{}>".format(username, None, None, None))
+
+    else:
+        last_visit = result[0]
+        last_year = last_visit.split("-")[0]
+        current_year = str(date.today()).split("-")[0]
+        if current_year > last_year:
+            ALMemory.raiseEvent("pepper-vinyl/long_time", "true")
+        else:
+            ALMemory.raiseEvent("pepper-vinyl/long_time", "true")
 
     conn.close()
 
@@ -145,11 +155,10 @@ def orderVinyl():
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO buys (client,vinyl)
-        VALUES (?, ?)
-    ''', (username, vinyl_name))
-    print("new entry in BUYS: <{},{}>".format(username, vinyl_name))
-
+        INSERT INTO buys (client,vinyl,date)
+        VALUES (?, ?, ?)
+    ''', (username, vinyl_name, date.today()))
+    print("new entry in BUYS: <{},{}, {}>".format(username, vinyl_name, date.today()))
 
     cursor.execute('''
         INSERT INTO orders (vinyl,client,status)
@@ -166,6 +175,8 @@ def guideClient():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
+    ALAnimation = manager.session.service("ALAnimationPlayer")
+
 
     username = ALMemory.getData("pepper-vinyl/username")
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
@@ -181,29 +192,40 @@ def guideClient():
     result = cursor.fetchone()
     quantity = int(result[2])
 
-    move_to(result[0], result[1], None)
-    offer_item()
-    rotate("behind")
+    prob = random.random()
+    vinyl_present = "true" if prob > 0.1 else "false"
 
-    cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE vinyls
-        SET quantity = ?
-        WHERE vinyl = ?
-    ''', (quantity-1, vinyl_name))
-    print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
-    conn.commit()
+    if vinyl_present == "true":
 
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO buys (client,vinyl)
-        VALUES (?, ?)
-    ''', (username, vinyl_name))
-    print("new entry in BUYS: <{},{}>".format(username, vinyl_name))
-    conn.commit()
+        move_to(result[0], result[1], None)
+        ALAnimation.run(".lastUploadedChoregrapheBehavior/animations/Stand/Gestures/Give_1")
+        rotate("behind")
+
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE vinyls
+            SET quantity = ?
+            WHERE vinyl = ?
+        ''', (quantity-1, vinyl_name))
+        print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
+        conn.commit()
+
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO buys (client,vinyl,date)
+            VALUES (?, ?)
+        ''', (username, vinyl_name))
+        print("new entry in BUYS: <{},{},{}>".format(username, vinyl_name, date.today()))
+        conn.commit()
+
+    else:
+
+        move_to(result[0], result[1], None)
+        rotate("behind")
 
     conn.close()
 
+    ALMemory.raiseEvent("pepper-vinyl/vinyl_present", vinyl_present)
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
 
@@ -212,6 +234,7 @@ def takeAndGoBack():
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
     ALMotion = manager.session.service('ALMotion')
+    ALAnimation = manager.session.service("ALAnimationPlayer")
 
     username = ALMemory.getData("pepper-vinyl/username")
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
@@ -230,30 +253,41 @@ def takeAndGoBack():
     result = cursor.fetchone()
     quantity = int(result[2])
 
-    move_to(result[0], result[1], None)
-    reach_and_grab()
-    move_to(initial_x, initial_y, None)
-    offer_item()
+    prob = random.random()
+    vinyl_present = "true" if prob > 0.1 else "false"
 
-    cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE vinyls
-        SET quantity = ?
-        WHERE vinyl = ?
-    ''', (quantity-1, vinyl_name))
-    print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
-    conn.commit()
+    if vinyl_present == "true":
 
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO buys (client,vinyl)
-        VALUES (?, ?)
-    ''', (username, vinyl_name))
-    print("new entry in BUYS: <{},{}>".format(username, vinyl_name))
-    conn.commit()
+        move_to(result[0], result[1], None)
+        ALAnimation.run(".lastUploadedChoregrapheBehavior/animations/Stand/Gestures/Take_1")
+        move_to(initial_x, initial_y, None)
+        ALAnimation.run(".lastUploadedChoregrapheBehavior/animations/Stand/Gestures/Give_1")
+
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE vinyls
+            SET quantity = ?
+            WHERE vinyl = ?
+        ''', (quantity-1, vinyl_name))
+        print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
+        conn.commit()
+
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO buys (client,vinyl,date)
+            VALUES (?, ?)
+        ''', (username, vinyl_name))
+        print("new entry in BUYS: <{},{},{}>".format(username, vinyl_name, date.today()))
+        conn.commit()
+
+    else:
+
+        move_to(result[0], result[1], None)
+        move_to(initial_x, initial_y, None)
 
     conn.close()
 
+    ALMemory.raiseEvent("pepper-vinyl/vinyl_present", vinyl_present)
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
 
@@ -478,6 +512,7 @@ def pointToVinyl():
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
     ALTracker = manager.session.service('ALTracker')
+    ALMotion = manager.session.service('ALMotion')
 
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
 
@@ -495,6 +530,10 @@ def pointToVinyl():
     ALTracker.pointAt("RArm", [result[0], result[1], 1.0], 1, 1.0)
     ALTracker.lookAt([result[0], result[1], 1.0], 1, 1.0, True)
 
+    current_pose = ALMotion.getRobotPosition(False)
+    client_direction = current_pose[2]
+
+    ALMemory.raiseEvent("pepper-vinyl/client_direction", client_direction)
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
 
@@ -541,7 +580,7 @@ def recommendations():
         rec_string += " '{}',".format(i)
     rec_string = rec_string[:-1]
 
-    ALMemory.raiseEvent("pepper-vinyl/recommendations", rec_string) 
+    ALMemory.raiseEvent("pepper-vinyl/recommendations", rec_string)
 
 
 def checkRecommendationRequest():
@@ -779,6 +818,68 @@ def userPassing():
     ALMemory.raiseEvent("pepper-vinyl/user_passing", "true")
 
 
+def rotateBack():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    client_direction = ALMemory.getData("pepper-vinyl/client_direction")
+    rotate(client_direction)
+
+
+def differentDemo():
+    
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+    prev_vinyl = ALMemory.getData("pepper-vinyl/vinyl_name")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT author, genre
+        FROM vinyls
+        WHERE vinyl = ?
+    ''', (prev_vinyl,))
+
+    result = cursor.fetchone()
+    prev_author, prev_genre = result[0], result[1]
+
+    train_model(
+        hidden_dim=64,
+        epochs=150,
+        lr=0.01,
+        num_samples=1024
+    )
+
+    recommendations = give_recommendations(username, top_k = 20)
+
+    rec_string = ""
+    counter = 0
+    for i in recommendations:
+        
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT author, genre
+            FROM vinyls
+            WHERE vinyl = ?
+        ''', (i,))
+
+        result = cursor.fetchone()
+        author, genre = result[0], result[1]
+
+        if author != prev_author and genre != prev_genre:
+            rec_string += " '{}',".format(i)
+            counter += 1
+        
+        if counter >= 5:
+            break
+    
+    rec_string = rec_string[:-1]
+    ALMemory.raiseEvent("pepper-vinyl/recommendations", rec_string)
+
+
 def handleFunction(value):
 
     if value == "check_username":
@@ -874,6 +975,12 @@ def handleFunction(value):
     elif value == "user_passing":
         userPassing()
 
+    elif value == "rotate_back":
+        rotateBack()
+
+    elif value == "different_demo":
+        differentDemo()
+
     else:
         raise ValueError("handler not found for value {}".format(value))
 
@@ -915,6 +1022,22 @@ def welcomeOldUser():
     )
 
     handleTablet("execute_welcome-old")
+
+
+def welcomeOldUserLongTime():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+
+    create_dynamic_action(
+        image = "welcome.png",
+        text = "Hi {}! I haven't seen you in a long time, welcome back to our shop!".format(username),
+        action_name = "welcome-old-long-time"
+    )
+
+    handleTablet("execute_welcome-old-long-time")
 
 
 def welcomeNewUser():
@@ -1207,11 +1330,31 @@ def showOrders():
     answer = handleTablet("execute_show-orders")
 
 
+def confirmName():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+
+    create_dynamic_action(
+        image = "name.png",
+        text = "So your name is {}, right?".format(username),
+        buttons = ["yes", "no"],
+        action_name = "confirm-name"
+    )
+
+    answer = handleTablet("ask_confirm-name")
+
+
 def handleTabletDynamic(value):
 
     if value == "welcome_old_user":
         welcomeOldUser()
     
+    elif value == "welcome_old_user_long_time":
+        welcomeOldUserLongTime()
+
     elif value == "welcome_new_user":
         welcomeNewUser()
 
@@ -1247,6 +1390,9 @@ def handleTabletDynamic(value):
 
     elif value == "show_orders":
         showOrders()
+
+    elif value == "confirm_name":
+        confirmName()
 
     else:
         raise ValueError("handler not found for value {}".format(value))

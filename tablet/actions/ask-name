@@ -4,7 +4,6 @@ IMAGE
 TEXT
 <*,*,*,*>: Your name is: 
 ----
-
 BUTTONS
 a
 <*,*,*,*>: A

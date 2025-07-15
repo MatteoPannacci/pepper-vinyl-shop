@@ -1,0 +1,12 @@
+IMAGE
+<*,*,*,*>: img/name.png
+----
+TEXT
+<*,*,*,*>: So your name is luca, right?
+----
+BUTTONS
+yes
+<*,*,*,*>: Yes
+no
+<*,*,*,*>: No
+----

@@ -21,11 +21,12 @@ logging.getLogger('ws_client').setLevel(logging.CRITICAL + 1)
 
 
 
-def graceful_close(ALDialog, topic_name):
+def graceful_close(ALDialog, topic_name, manager):
     print("\nTerminating...\n")
     ALDialog.unsubscribe('pepper_vinyl_shop')
     ALDialog.deactivateTopic(topic_name)
     ALDialog.unloadTopic(topic_name)
+    manager.mws.cclose()
     return 0
 
 
@@ -76,6 +77,9 @@ def main():
     tablet_dyn_sub = ALMemory.subscriber("pepper-vinyl/tablet_dyn")
     tablet_dyn_sub.signal.connect(handleTabletDynamic)
 
+    ALAnimatedSpeech = manager.session.service("ALAnimatedSpeech")
+    ALAnimatedSpeech.setBodyLanguageMode(2)
+
     print("Pepper is Running... use Ctrl+C to finish the execution.")
     ALMemory.raiseEvent("pepper-vinyl/tablet", "ask_welcome")
 
@@ -90,7 +94,7 @@ def main():
                 ALMemory.raiseEvent("pepper-vinyl/function", "user_passing")
 
         except KeyboardInterrupt:
-            return graceful_close(ALDialog, topic_name)
+            return graceful_close(ALDialog, topic_name, manager)
 
 
 # database vinyl-description + interaction "tell me more about it"

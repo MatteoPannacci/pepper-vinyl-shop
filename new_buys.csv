@@ -1,0 +1,401 @@
+client,vinyl,date
+luca,abbey road,2022-11-09
+luca,parachutes,2023-04-30
+luca,purple rain,2022-08-05
+luca,let it bleed,2023-05-06
+luca,the rise and fall of ziggy stardust,2022-10-29
+luca,master of puppets,2022-01-03
+luca,kind of blue,2022-10-18
+luca,dark side of the moon,2022-03-18
+luca,a love supreme,2023-05-03
+luca,21,2022-07-16
+luca,ten,2022-11-16
+luca,disintegration,2023-04-18
+luca,blue,2023-05-12
+luca,good kid maad city,2022-05-19
+emanuele,damn,2022-10-24
+emanuele,hotel california,2021-06-26
+emanuele,the chronic,2022-01-10
+emanuele,illmatic,2022-09-22
+emanuele,to pimp a butterfly,2021-09-24
+emanuele,let it bleed,2022-01-03
+emanuele,thriller,2022-01-19
+emanuele,a moon shaped pool,2022-03-03
+emanuele,good kid maad city,2022-10-10
+ali,the four seasons,2022-11-19
+ali,hotel california,2023-11-28
+ali,abbey road,2022-11-12
+ali,the chronic,2023-07-24
+ali,21,2023-05-10
+ali,illmatic,2023-05-25
+ali,kind of blue,2022-12-24
+ali,symphony no 5,2024-01-12
+ali,nevermind,2023-03-29
+ali,graceland,2023-12-17
+ali,blue,2022-11-29
+ali,a love supreme,2024-01-15
+matteo,the four seasons,2019-12-24
+matteo,abbey road,2019-07-07
+matteo,bad,2019-10-02
+matteo,american idiot,2020-05-08
+matteo,back in black,2020-07-03
+matteo,illmatic,2020-04-30
+matteo,to pimp a butterfly,2019-10-01
+matteo,the queen is dead,2019-12-09
+matteo,dark side of the moon,2019-04-16
+matteo,symphony no 5,2019-06-04
+matteo,ten,2020-04-09
+matteo,disintegration,2019-12-17
+matteo,kind of blue,2020-07-19
+matteo,blue,2019-08-10
+anna,damn,2021-05-09
+anna,abbey road,2020-10-10
+anna,bad,2021-08-19
+anna,symphony no 5,2021-07-03
+anna,born to run,2020-10-08
+anna,the wall,2020-12-18
+anna,rumours,2021-04-25
+anna,dark side of the moon,2021-01-05
+anna,21,2021-04-11
+anna,ok computer,2021-05-31
+anna,graceland,2021-05-06
+anna,ten,2020-12-18
+anna,disintegration,2021-09-05
+anna,blue,2020-08-01
+marco,hotel california,2025-02-25
+marco,abbey road,2024-12-29
+marco,the four seasons,2024-11-16
+marco,american idiot,2024-10-22
+marco,born to run,2024-05-31
+marco,to pimp a butterfly,2024-11-03
+marco,let it bleed,2025-05-08
+marco,master of puppets,2025-04-27
+marco,the queen is dead,2024-06-27
+marco,rumours,2024-11-05
+marco,disintegration,2024-08-01
+marco,blue,2024-02-26
+giulia,bad,2021-10-08
+giulia,parachutes,2021-10-14
+giulia,kid a,2021-09-24
+giulia,thriller,2021-01-29
+giulia,lemonade,2020-10-21
+giulia,dark side of the moon,2021-04-09
+giulia,21,2021-10-24
+giulia,nevermind,2021-07-26
+giulia,ok computer,2021-04-28
+giulia,ten,2021-12-22
+giulia,ctrl,2021-07-19
+giulia,a moon shaped pool,2020-10-01
+giulia,disintegration,2022-01-06
+federico,abbey road,2022-07-21
+federico,the chronic,2022-03-27
+federico,parachutes,2023-05-15
+federico,back in black,2022-12-06
+federico,a love supreme,2023-01-04
+federico,purple rain,2023-02-21
+federico,to pimp a butterfly,2023-02-21
+federico,let it bleed,2022-11-30
+federico,thriller,2022-05-05
+federico,lemonade,2023-04-23
+federico,dark side of the moon,2023-01-13
+federico,ten,2022-07-02
+federico,master of puppets,2022-08-03
+federico,disintegration,2022-07-13
+valentina,american idiot,2019-08-04
+valentina,a love supreme,2019-09-28
+valentina,born to run,2019-12-23
+valentina,back in black,2019-11-16
+valentina,the rise and fall of ziggy stardust,2019-12-20
+valentina,rumours,2019-07-26
+valentina,dark side of the moon,2020-03-10
+valentina,nevermind,2019-11-20
+valentina,graceland,2020-01-02
+valentina,ten,2020-01-13
+valentina,blue,2019-04-17
+valentina,disintegration,2019-05-30
+riccardo,parachutes,2024-12-08
+riccardo,american idiot,2024-12-16
+riccardo,illmatic,2024-07-30
+riccardo,to pimp a butterfly,2023-12-03
+riccardo,let it bleed,2025-01-09
+riccardo,master of puppets,2024-06-14
+riccardo,a love supreme,2024-09-08
+riccardo,graceland,2024-10-07
+riccardo,disintegration,2024-12-05
+riccardo,blue,2024-01-08
+elisa,bad,2020-11-18
+elisa,parachutes,2020-02-16
+elisa,american idiot,2020-05-18
+elisa,illmatic,2020-01-26
+elisa,kid a,2020-06-10
+elisa,purple rain,2020-12-12
+elisa,let it bleed,2020-03-14
+elisa,the wall,2020-05-06
+elisa,lemonade,2020-05-02
+elisa,dark side of the moon,2019-12-31
+elisa,ok computer,2020-07-11
+elisa,ten,2020-10-13
+elisa,disintegration,2020-02-06
+elisa,blue,2021-03-11
+andrea,abbey road,2023-04-16
+andrea,bad,2023-02-03
+andrea,parachutes,2024-02-19
+andrea,to pimp a butterfly,2023-02-03
+andrea,let it bleed,2023-06-12
+andrea,nevermind,2023-12-30
+andrea,ok computer,2023-08-29
+andrea,ten,2024-02-03
+andrea,disintegration,2024-05-14
+andrea,blue,2023-04-10
+francesca,the four seasons,2023-04-18
+francesca,21,2023-08-17
+francesca,parachutes,2023-07-15
+francesca,american idiot,2022-09-30
+francesca,illmatic,2023-02-21
+francesca,kid a,2023-03-13
+francesca,kind of blue,2023-08-15
+francesca,symphony no 5,2023-03-03
+francesca,nevermind,2023-01-01
+francesca,ok computer,2023-07-11
+francesca,blue,2022-10-14
+francesca,disintegration,2023-04-29
+simone,damn,2019-06-28
+simone,american idiot,2019-08-31
+simone,back in black,2020-01-25
+simone,kid a,2020-06-30
+simone,the queen is dead,2019-10-30
+simone,master of puppets,2020-08-04
+simone,the wall,2019-11-25
+simone,rumours,2020-06-10
+simone,21,2019-07-26
+simone,disintegration,2020-08-25
+simone,blue,2020-05-13
+martina,the four seasons,2023-12-12
+martina,damn,2024-07-05
+martina,illmatic,2024-08-21
+martina,kid a,2023-09-22
+martina,purple rain,2023-10-24
+martina,the rise and fall of ziggy stardust,2024-01-02
+martina,the queen is dead,2024-11-23
+martina,master of puppets,2024-10-29
+martina,a love supreme,2024-03-19
+martina,21,2024-02-01
+martina,graceland,2024-03-21
+martina,ten,2024-01-24
+martina,disintegration,2024-04-12
+martina,blue,2024-04-07
+davide,the four seasons,2024-08-01
+davide,damn,2023-10-24
+davide,illmatic,2023-12-24
+davide,the rise and fall of ziggy stardust,2023-10-26
+davide,lemonade,2024-07-29
+davide,symphony no 5,2024-09-06
+davide,ok computer,2024-11-30
+davide,ten,2023-10-20
+davide,disintegration,2024-03-29
+davide,blue,2023-09-27
+carlo,back in black,2021-03-13
+carlo,born to run,2021-05-24
+carlo,kid a,2020-12-26
+carlo,purple rain,2020-06-13
+carlo,the queen is dead,2021-05-07
+carlo,the wall,2021-01-15
+carlo,the rise and fall of ziggy stardust,2020-03-31
+carlo,dark side of the moon,2020-07-28
+carlo,disintegration,2020-10-16
+carlo,blue,2020-06-20
+silvia,the four seasons,2022-03-28
+silvia,back in black,2023-02-05
+silvia,born to run,2022-12-29
+silvia,kid a,2022-09-19
+silvia,to pimp a butterfly,2022-12-31
+silvia,master of puppets,2023-01-03
+silvia,the rise and fall of ziggy stardust,2021-10-25
+silvia,symphony no 5,2022-09-17
+silvia,nevermind,2022-11-21
+silvia,ok computer,2022-06-23
+silvia,graceland,2022-08-19
+silvia,disintegration,2022-10-21
+silvia,blue,2023-01-18
+stefano,american idiot,2021-10-19
+stefano,illmatic,2021-08-08
+stefano,kid a,2021-06-22
+stefano,to pimp a butterfly,2021-11-15
+stefano,lemonade,2021-11-27
+stefano,nevermind,2021-10-15
+stefano,ok computer,2021-09-20
+stefano,graceland,2022-02-16
+stefano,ten,2022-06-04
+stefano,disintegration,2021-08-26
+stefano,blue,2021-07-25
+paolo,damn,2015-11-24
+paolo,hotel california,2016-07-12
+paolo,bad,2016-08-27
+paolo,the chronic,2015-05-27
+paolo,born to run,2016-08-05
+paolo,illmatic,2015-05-06
+paolo,to pimp a butterfly,2015-10-15
+paolo,let it bleed,2016-01-05
+paolo,master of puppets,2015-10-06
+paolo,thriller,2015-12-17
+paolo,kind of blue,2016-02-23
+paolo,lemonade,2016-02-26
+paolo,disintegration,2015-11-16
+paolo,blue,2016-01-20
+giovanni,funeral,2023-02-04
+giovanni,hot fuss,2023-05-01
+giovanni,turn on the bright lights,2022-07-08
+giovanni,in the aeroplane over the sea,2023-06-27
+giovanni,xx,2023-08-18
+giovanni,blue,2022-05-17
+giovanni,disintegration,2022-05-21
+chiara,hounds of love,2023-09-15
+chiara,homogenic,2024-02-21
+chiara,no shape,2024-10-16
+chiara,blackstar,2024-10-22
+chiara,disintegration,2024-05-19
+chiara,lemonade,2024-09-21
+lorenzo,lp,2023-05-15
+lorenzo,black sands,2023-06-18
+lorenzo,innerworld,2022-12-14
+lorenzo,emotion,2023-02-03
+lorenzo,xx,2023-02-01
+lorenzo,trilogy,2022-11-23
+marta,saturdays = youth,2023-06-20
+marta,demon days,2023-06-11
+marta,midnight marauders,2024-01-22
+marta,xx,2023-11-19
+marta,hot fuss,2024-05-20
+daniele,nevermind,2022-06-17
+daniele,ten,2022-07-09
+daniele,disintegration,2022-07-09
+daniele,doolittle,2022-06-07
+daniele,grace,2022-03-25
+camilla,blue,2020-07-15
+camilla,highway 61 revisited,2021-06-20
+camilla,whats going on,2020-07-15
+camilla,aint that good news,2020-04-21
+camilla,kind of blue,2020-12-15
+camilla,bitches brew,2021-05-13
+camilla,a love supreme,2020-09-20
+fabio,disintegration,2024-04-21
+fabio,doolittle,2024-06-24
+fabio,the four seasons,2024-05-16
+fabio,symphony no 5,2024-12-15
+fabio,homogenic,2024-08-30
+fabio,vespertine,2024-04-30
+ilaria,blackstar,2023-06-21
+ilaria,the rise and fall of ziggy stardust,2022-08-29
+ilaria,let it bleed,2023-09-24
+ilaria,grace,2022-11-11
+serena,house of balloons,2023-05-21
+serena,trilogy,2023-06-16
+serena,after hours,2023-08-20
+serena,channel orange,2024-04-07
+serena,ctrl,2024-02-02
+alessandro,am,2022-01-19
+alessandro,hot fuss,2021-01-16
+alessandro,xx,2021-08-23
+alessandro,turn on the bright lights,2021-10-01
+alessandro,funeral,2020-12-27
+alessandro,blue,2022-02-19
+alessandro,elephant,2021-07-17
+giacomo,random access memories,2024-08-19
+giacomo,disintegration,2025-01-27
+giacomo,demon days,2024-11-16
+giacomo,melodrama,2024-05-16
+giacomo,currents,2024-08-27
+giacomo,in rainbows,2024-08-14
+rosa,21,2023-05-12
+rosa,good kid maad city,2022-10-07
+rosa,emotion,2023-07-20
+rosa,lemonade,2023-09-11
+rosa,xx,2023-05-13
+rosa,blackstar,2023-04-09
+beatrice,melodrama,2023-04-04
+beatrice,xx,2022-10-08
+beatrice,emotion,2022-11-05
+beatrice,random access memories,2023-03-05
+beatrice,blackstar,2023-09-11
+martino,highway 61 revisited,2022-02-23
+martino,whats going on,2022-09-18
+martino,aint that good news,2022-07-06
+martino,blue,2021-11-26
+martino,bitches brew,2022-06-04
+martino,a love supreme,2021-10-09
+teodora,xx,2021-02-08
+teodora,diary,2020-08-09
+teodora,emotion,2021-05-15
+teodora,hot fuss,2020-07-23
+teodora,in the aeroplane over the sea,2020-09-02
+ludovico,a love supreme,2023-09-23
+ludovico,kind of blue,2024-07-14
+ludovico,bitches brew,2023-11-23
+ludovico,midnight marauders,2023-12-27
+ludovico,mezzanine,2024-02-05
+ludovico,master of puppets,2024-02-29
+nicole,tidal,2023-01-17
+nicole,blackstar,2021-12-02
+nicole,homogenic,2022-05-25
+nicole,vespertine,2021-11-14
+nicole,ctrl,2021-12-09
+vittorio,time & space,2024-08-14
+vittorio,american idiot,2024-05-05
+vittorio,the chronic,2024-10-08
+vittorio,master of puppets,2023-11-21
+vittorio,disintegration,2024-04-30
+vittorio,good kid maad city,2023-11-17
+sara,selected ambient works 85-92,2024-01-09
+sara,innerworld,2023-09-23
+sara,vespertine,2024-05-08
+sara,saturdays = youth,2023-03-04
+sara,black sands,2023-06-23
+nicolas,turn on the bright lights,2022-08-16
+nicolas,funeral,2022-01-24
+nicolas,in the aeroplane over the sea,2022-05-04
+nicolas,hot fuss,2022-01-19
+nicolas,xx,2021-12-16
+allegra,mezzanine,2021-05-06
+allegra,entroducing,2021-12-18
+allegra,black sands,2021-04-17
+allegra,disintegration,2022-03-20
+allegra,a moon shaped pool,2021-12-13
+carla,black sands,2023-03-05
+carla,innerworld,2023-05-19
+carla,saturdays = youth,2023-11-24
+carla,demon days,2024-03-17
+carla,xx,2023-07-14
+carla,emotion,2023-08-23
+gabriele,in the aeroplane over the sea,2022-02-14
+gabriele,funeral,2022-09-08
+gabriele,xx,2021-10-28
+gabriele,hot fuss,2022-08-07
+gabriele,blue,2022-04-05
+letizia,the money store,2022-10-01
+letizia,melodrama,2021-12-18
+letizia,demon days,2022-04-20
+letizia,ctrl,2021-08-30
+letizia,emotion,2021-09-26
+michele,demon days,2023-07-16
+michele,melodrama,2023-03-26
+michele,random access memories,2024-02-23
+michele,channel orange,2023-10-01
+michele,ctrl,2023-06-13
+nadia,in rainbows,2024-04-29
+nadia,kid a,2024-11-30
+nadia,ok computer,2024-04-01
+nadia,a moon shaped pool,2025-01-28
+nadia,blackstar,2024-03-09
+tommaso,forever changes,2023-06-04
+tommaso,soulfly,2023-07-08
+tommaso,homogenic,2023-11-14
+tommaso,highway 61 revisited,2024-06-04
+noemi,vespertine,2022-05-04
+noemi,homogenic,2023-03-11
+noemi,blackstar,2023-06-04
+noemi,disintegration,2023-03-10
+noemi,a moon shaped pool,2022-04-26
+enrico,diary,2024-01-14
+enrico,disintegration,2023-05-11
+enrico,demon days,2024-02-17
+enrico,mezzanine,2024-06-13

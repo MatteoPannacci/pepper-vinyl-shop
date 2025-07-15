@@ -1,0 +1,12 @@
+IMAGE
+<*,*,*,*>: img/vinyl.png
+----
+TEXT
+<*,*,*,*>: We don't have '21' in storage right now. Do you want to order it?
+----
+BUTTONS
+yes
+<*,*,*,*>: Yes
+no
+<*,*,*,*>: No
+----

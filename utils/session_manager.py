@@ -107,6 +107,7 @@ class SessionManager(object):
         CREATE TABLE buys (
             client TEXT,
             vinyl TEXT,
+            date TEXT,
             FOREIGN KEY (vinyl) REFERENCES vinyls(vinyl),
             FOREIGN KEY (client) REFERENCES clients(username)
         );
@@ -164,6 +165,7 @@ class SessionManager(object):
 
     def ask_modim(self, action, timeout=999):
         with filtered_print(filter):
+            self.msw
             return self.mws.csend("im.ask('{}', timeout={})".format(action, timeout))
 
 
@@ -205,7 +207,7 @@ class FilteredStdout:
 
 def filter(text):
     allowed = True
-    for t in ["WS client::", "ModimWSClient::", "Reply: (00)", "Reply: (OK)", "im.init()", "setDemoPathAuto"]:
+    for t in ["WS client::", "ModimWSClient::", "Reply:", "im.init()", "setDemoPathAuto", "qi.eventloop"]:
         if t in text:
             allowed = False
     return allowed

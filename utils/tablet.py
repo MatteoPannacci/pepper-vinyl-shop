@@ -53,12 +53,14 @@ def create_dynamic_action(image=None, text=None, speech=None, buttons=None, gest
         """
     
     if buttons != None:
-        action_content += """
-            BUTTONS
-        """
+        action_content += "BUTTONS\n"
         for button in buttons:
             action_content += "{}\n".format(button)
             action_content += "<*,*,*,*>: {}\n".format(button.capitalize())
+        action_content += "----"
+
+    else:
+        action_content += "BUTTONS\n"
         action_content += "----"
 
     if gesture != None:
