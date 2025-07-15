@@ -52,6 +52,7 @@ class SessionManager(object):
         orders_df = pd.read_csv(os.path.join(MAIN_DIR, "data/orders.csv"))
         buys_df = pd.read_csv(os.path.join(MAIN_DIR, "data/buys.csv"))
         ratings_df = pd.read_csv(os.path.join(MAIN_DIR, "data/ratings.csv"))
+        likes_df = pd.read_csv(os.path.join(MAIN_DIR, "data/likes.csv"))
 
         conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
 
@@ -60,10 +61,12 @@ class SessionManager(object):
         orders_df.to_sql("orders_csv", conn, if_exists="replace", index=False)
         buys_df.to_sql("buys_csv", conn, if_exists="replace", index=False)
         ratings_df.to_sql("ratings_csv", conn, if_exists="replace", index=False)
+        likes_df.to_sql("likes_csv", conn, if_exists="replace", index=False)
 
         conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
 
+        cursor.execute("DROP TABLE IF EXISTS likes;")
         cursor.execute("DROP TABLE IF EXISTS orders;")
         cursor.execute("DROP TABLE IF EXISTS buys;")
         cursor.execute("DROP TABLE IF EXISTS ratings;")
@@ -149,6 +152,23 @@ class SessionManager(object):
         """)
         cursor.execute("DROP TABLE ratings_csv;")
 
+        cursor.execute("""
+        CREATE TABLE likes (
+            client TEXT,
+            vinyl TEXT,
+            opinion TEXT,
+            date TEXT,
+            FOREIGN KEY (vinyl) REFERENCES vinyls(vinyl),
+            FOREIGN KEY (client) REFERENCES clients(username)
+        );
+        """)
+
+        cursor.execute("""
+            INSERT INTO likes 
+            SELECT * FROM likes_csv;
+        """)
+        cursor.execute("DROP TABLE likes_csv;")
+
         conn.commit()
         conn.close()
 
@@ -165,7 +185,6 @@ class SessionManager(object):
 
     def ask_modim(self, action, timeout=999):
         with filtered_print(filter):
-            self.msw
             return self.mws.csend("im.ask('{}', timeout={})".format(action, timeout))
 
 

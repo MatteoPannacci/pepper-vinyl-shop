@@ -9,6 +9,7 @@ import random
 import string
 import ast
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 from .motion import *
 from .session_manager import *
@@ -471,6 +472,21 @@ def playDemo():
     predicted = str(predict_emotion(image_path, "./models/classifier"))
     print("Predicted reaction: {}".format(predicted))
 
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+
+    username = ALMemory.getData("pepper-vinyl/username")
+    vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
+
+    cursor.execute('''
+        INSERT INTO likes (client, vinyl, opinion, date)
+        VALUES (?, ?, ?, ?)
+    ''', (username, vinyl_name, predicted, date.today()))
+    conn.commit()
+    print("new entry in LIKES: <{},{},{},{}>".format(username, vinyl_name, predicted, date.today()))
+
+    conn.close()
+
     ALMemory.raiseEvent("pepper-vinyl/reaction", predicted)
     ALMemory.raiseEvent("pepper-vinyl/true_reaction", reaction)
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
@@ -880,6 +896,83 @@ def differentDemo():
     ALMemory.raiseEvent("pepper-vinyl/recommendations", rec_string)
 
 
+def checkTrends():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    
+    curr_date = date.today()
+    prev_date = curr_date - relativedelta(months=1)
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT vinyl, COUNT(*) as count
+        FROM (
+            SELECT vinyl
+            FROM likes
+            WHERE date > ? AND opinion = 'happy' AND client != ?
+            
+            UNION ALL
+            
+            SELECT vinyl
+            FROM buys
+            WHERE date > ? AND client != ?
+        )
+        GROUP BY vinyl
+        ORDER BY count DESC
+        LIMIT 5
+    ''', (prev_date, username, prev_date, username))
+
+    top_vinyls = cursor.fetchall()
+
+    if len(top_vinyls) == 0:
+        ALMemory.raiseEvent("pepper-vinyl/has_trends", "false")
+
+    else:
+        ALMemory.raiseEvent("pepper-vinyl/has_trends", "true")
+
+
+def findSuggestionTrends():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    
+    curr_date = date.today()
+    prev_date = curr_date - relativedelta(months=1)
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT vinyl, COUNT(*) as count
+        FROM (
+            SELECT vinyl
+            FROM likes
+            WHERE date > ? AND opinion = 'happy' AND client != ?
+            
+            UNION ALL
+            
+            SELECT vinyl
+            FROM buys
+            WHERE date > ? AND client != ?
+        )
+        GROUP BY vinyl
+        ORDER BY count DESC
+        LIMIT 5
+    ''', (prev_date, username, prev_date, username))
+
+    result = cursor.fetchone()
+    result = str(result[0])
+
+    ALMemory.raiseEvent("pepper-vinyl/suggestion", result)
+
+
 def handleFunction(value):
 
     if value == "check_username":
@@ -914,6 +1007,9 @@ def handleFunction(value):
 
     elif value == "find_suggestion_author":
         findSuggestionAuthor()
+
+    elif value == "find_suggestion_trends":
+        findSuggestionTrends()
 
     elif value == "play_demo":
         playDemo()
@@ -980,6 +1076,9 @@ def handleFunction(value):
 
     elif value == "different_demo":
         differentDemo()
+
+    elif value == "check_trends":
+        checkTrends()
 
     else:
         raise ValueError("handler not found for value {}".format(value))
@@ -1268,10 +1367,10 @@ def showSuggestionGenre():
         image = "vinyl.png",
         text = "Here is the newest vinyl from {}: '{}'. Do you want to listen to a demo?".format(selected_genre, suggestion),
         buttons = ["yes", "no"],
-        action_name = "show-suggestion"
+        action_name = "show-suggestion-genre"
     )    
 
-    answer = handleTablet("ask_show-suggestion")
+    answer = handleTablet("ask_show-suggestion-genre")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -1289,10 +1388,10 @@ def showSuggestionAuthor():
         image = "vinyl.png",
         text = "Here is the newest vinyl from {}: '{}'. Do you want to listen to a demo?".format(selected_author, suggestion),
         buttons = ["yes", "no"],
-        action_name = "show-suggestion"
+        action_name = "show-suggestion-author"
     )
 
-    answer = handleTablet("ask_show-suggestion")
+    answer = handleTablet("ask_show-suggestion-author")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -1313,6 +1412,9 @@ def playingMusic():
 
     answer = handleTablet("execute_play-music")
 
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
 
 def showOrders():
 
@@ -1328,6 +1430,9 @@ def showOrders():
     )
 
     answer = handleTablet("execute_show-orders")
+
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
 
 
 def confirmName():
@@ -1345,6 +1450,29 @@ def confirmName():
     )
 
     answer = handleTablet("ask_confirm-name")
+
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
+
+
+def showSuggestionTrends():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    suggestion = ALMemory.getData("pepper-vinyl/suggestion")
+
+    create_dynamic_action(
+        image = "vinyl.png",
+        text = "The most trending vinyl this month is '{}'. Do you want to listen to a demo?".format(suggestion),
+        buttons = ["yes", "no"],
+        action_name = "show-suggestion-trends"
+    )
+
+    answer = handleTablet("ask_show-suggestion-trends")
+
+    ALMemory.raiseEvent("pepper-vinyl/answer", answer)
+    ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
 
 
 def handleTabletDynamic(value):
@@ -1393,6 +1521,9 @@ def handleTabletDynamic(value):
 
     elif value == "confirm_name":
         confirmName()
+
+    elif value == "show_suggestion_trends":
+        showSuggestionTrends()
 
     else:
         raise ValueError("handler not found for value {}".format(value))

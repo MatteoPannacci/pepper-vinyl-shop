@@ -366,7 +366,7 @@ proposal: %specific
 proposal: %suggestions
     $pepper-vinyl/tablet=ask_type-of-suggestion
     ^start(animations/Stand/Gestures/Explain_3)
-    I can provide you suggestions based on your favourite genre or author or I can think of something you may like based on previous interactions we had.
+    I can provide you suggestions based on recent trends, on your favourite genre or author or I can think of something you may like based on previous interactions we had.
 
     u1: ([
             "{*} genre {*}"
@@ -412,6 +412,21 @@ proposal: %suggestions
             ^start(animations/Stand/Emotions/Negative/Sorry_1)
             I'm sorry but i don't know of any your previous interactions.
             # could ask questions to add to the database!
+            ^gotoReactivate(need_something_else)
+
+    u1: ([
+            "{*} [trend trends trending] {*}"
+            "e:pepper-vinyl/answer $pepper-vinyl/answer==trends"
+        ])
+        $pepper-vinyl/function=check_trends
+
+        u2: (e:pepper-vinyl/has_trends $pepper-vinyl/has_trends==true)
+            ^gotoReactivate(give_suggestion_trends)
+
+        u2: (e:pepper-vinyl/has_trends $pepper-vinyl/has_trends==false)
+            $pepper-vinyl/tablet=execute_no-trends
+            ^start(animations/Stand/Emotions/Negative/Sorry_1)
+            I'm sorry, it seems there are no particular trends recently.
             ^gotoReactivate(need_something_else)
 
 
@@ -626,6 +641,46 @@ proposal: %ask_favourite_author
             ^start(animations/Stand/Gestures/IDontKnow_1)
             That doesn't look like a music author, could you try something else?
             ^gotoReactivate(ask_favourite_author)
+
+
+
+# --- Provide Suggestion based on Recent Trends ---
+proposal: %give_suggestion_trends
+    $pepper-vinyl/function=find_suggestion_trends
+
+    u1: (e:pepper-vinyl/suggestion)
+        $pepper-vinyl/tablet_dyn=show_suggestion_trends
+        ^start(animations/Stand/Gestures/ShowTablet_1)
+        The most trending vinyl this month is "$pepper-vinyl/suggestion" .
+        Do you want to listen to a demo of it?
+
+        u2: ([
+                ~acceptance
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+            ])
+            $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
+            ^gotoReactivate(play_vinyl)
+
+        u2: ([
+                ~refusal
+                "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+            ])
+            $pepper-vinyl/tablet=ask_do-you-want-to-buy
+            ^start(animations/Stand/Gestures/You_1)
+            Do you want to buy it?
+
+            u3: ([
+                    ~acceptance
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==yes"
+                ])
+                $pepper-vinyl/vinyl_name=$pepper-vinyl/suggestion
+                ^gotoReactivate(get_the_vinyl)
+
+            u3: ([
+                    ~refusal
+                    "e:pepper-vinyl/answer $pepper-vinyl/answer==no"
+                ])
+                ^gotoReactivate(need_something_else)
 
 
 

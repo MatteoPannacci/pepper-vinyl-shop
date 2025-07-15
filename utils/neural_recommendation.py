@@ -18,6 +18,8 @@ def build_graph(seed=42):
     users = df['client'].unique().tolist()
     items = df['vinyl'].unique().tolist()
     # USE DATE?
+    # USE FAV_AUTHOR AND FAV_GENRE?
+    # USE LIKES?
 
     user2id = {u: i for i, u in enumerate(users)}
     item2id = {v: i + len(users) for i, v in enumerate(items)}

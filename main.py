@@ -84,17 +84,19 @@ def main():
     ALMemory.raiseEvent("pepper-vinyl/tablet", "ask_welcome")
 
     # busy waiting
-    while True:
+    with filtered_print(filter):
 
-        try:
+        while True:
 
-            command = raw_input()
+            try:
 
-            if command == "passing_by":
-                ALMemory.raiseEvent("pepper-vinyl/function", "user_passing")
+                command = raw_input()
 
-        except KeyboardInterrupt:
-            return graceful_close(ALDialog, topic_name, manager)
+                if command == "passing_by":
+                    ALMemory.raiseEvent("pepper-vinyl/function", "user_passing")
+
+            except KeyboardInterrupt:
+                return graceful_close(ALDialog, topic_name, manager)
 
 
 # database vinyl-description + interaction "tell me more about it"
