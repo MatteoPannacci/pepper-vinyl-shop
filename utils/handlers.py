@@ -214,8 +214,8 @@ def guideClient():
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO buys (client,vinyl,date)
-            VALUES (?, ?)
-        ''', (username, vinyl_name))
+            VALUES (?, ?, ?)
+        ''', (username, vinyl_name, date.today()))
         print("new entry in BUYS: <{},{},{}>".format(username, vinyl_name, date.today()))
         conn.commit()
 
@@ -262,6 +262,7 @@ def takeAndGoBack():
         move_to(result[0], result[1], None)
         ALAnimation.run(".lastUploadedChoregrapheBehavior/animations/Stand/Gestures/Take_1")
         move_to(initial_x, initial_y, None)
+        rotateBack()
         ALAnimation.run(".lastUploadedChoregrapheBehavior/animations/Stand/Gestures/Give_1")
 
         cursor = conn.cursor()
@@ -276,8 +277,8 @@ def takeAndGoBack():
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO buys (client,vinyl,date)
-            VALUES (?, ?)
-        ''', (username, vinyl_name))
+            VALUES (?, ?, ?)
+        ''', (username, vinyl_name, date.today()))
         print("new entry in BUYS: <{},{},{}>".format(username, vinyl_name, date.today()))
         conn.commit()
 
@@ -285,6 +286,7 @@ def takeAndGoBack():
 
         move_to(result[0], result[1], None)
         move_to(initial_x, initial_y, None)
+        rotateBack()
 
     conn.close()
 
@@ -518,6 +520,7 @@ def reset():
         ALMemory.insertData(key, "")
         print("Deleted: {}".format(key))
 
+        
     move_to(0.0, 0.0, 0.0)
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
@@ -840,6 +843,7 @@ def rotateBack():
     ALMemory = manager.session.service('ALMemory')
 
     client_direction = ALMemory.getData("pepper-vinyl/client_direction")
+
     rotate(client_direction)
 
 

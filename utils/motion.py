@@ -18,21 +18,28 @@ def move_to(target_x, target_y, target_theta = None):
     dx = target_x - x
     dy = target_y - y
 
-    # Angle to face target (in world frame)
-    angle_to_target = math.atan2(dy, dx)
+    if (dx**2 + dy**2) > 0.1:
 
-    # Compute relative angle to rotate (difference between target angle and current orientation)
-    relative_theta = angle_to_target - theta
-    relative_theta = (relative_theta + math.pi) % (2 * math.pi) - math.pi
+        # Angle to face target (in world frame)
+        angle_to_target = math.atan2(dy, dx)
 
-    # Distance to target
-    distance = math.hypot(dx, dy)
+        # Compute relative angle to rotate (difference between target angle and current orientation)
+        relative_theta = angle_to_target - theta
+        relative_theta = (relative_theta + math.pi) % (2 * math.pi) - math.pi
 
-    # Step 1: rotate in place to face target
-    ALMotion.moveTo(0.0, 0.0, relative_theta)
+        # Distance to target
+        distance = math.hypot(dx, dy)
 
-    # Step 2: move forward to the target
-    ALMotion.moveTo(distance, 0.0, 0.0)
+        # Step 1: rotate in place to face target
+        ALMotion.moveTo(0.0, 0.0, relative_theta)
+
+        # Step 2: move forward to the target
+        ALMotion.moveTo(distance, 0.0, 0.0)
+
+    else:
+
+        # If it doesn't move keep the same theta
+        angle_to_target = theta
 
     if target_theta != None:
 
