@@ -18,6 +18,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 logging.getLogger('ws_client').setLevel(logging.CRITICAL + 1)
+logging.getLogger('qi').setLevel(logging.ERROR)
 
 
 

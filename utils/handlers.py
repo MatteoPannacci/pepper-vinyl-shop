@@ -51,7 +51,7 @@ def checkUsername():
             VALUES (?, ?, ?, ?)
         ''', (username, None, None, None))
         conn.commit()
-        print("new entry in CLIENTS: <{},{},{},{}>".format(username, None, None, None))
+        print("DATASET: new entry in 'CLIENTS': <{},{},{},{}>".format(username, None, None, None))
 
     else:
         last_visit = result[0]
@@ -159,13 +159,13 @@ def orderVinyl():
         INSERT INTO buys (client,vinyl,date)
         VALUES (?, ?, ?)
     ''', (username, vinyl_name, date.today()))
-    print("new entry in BUYS: <{},{}, {}>".format(username, vinyl_name, date.today()))
+    print("DATASET: new entry in 'BUYS': <{},{}, {}>".format(username, vinyl_name, date.today()))
 
     cursor.execute('''
         INSERT INTO orders (vinyl,client,status)
         VALUES (?, ?, ?)
     ''', (vinyl_name, username, "pending"))
-    print("new entry in ORDERS: <{},{}, {}>".format(username, vinyl_name, "pending"))
+    print("DATASET: new entry in 'ORDERS': <{},{}, {}>".format(username, vinyl_name, "pending"))
 
 
     conn.commit()
@@ -208,7 +208,7 @@ def guideClient():
             SET quantity = ?
             WHERE vinyl = ?
         ''', (quantity-1, vinyl_name))
-        print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
+        print("DATASET: updated entry '{}' in table 'VINYLS': field 'quantity' = '{}'".format(vinyl_name, quantity-1))
         conn.commit()
 
         cursor = conn.cursor()
@@ -216,7 +216,7 @@ def guideClient():
             INSERT INTO buys (client,vinyl,date)
             VALUES (?, ?, ?)
         ''', (username, vinyl_name, date.today()))
-        print("new entry in BUYS: <{},{},{}>".format(username, vinyl_name, date.today()))
+        print("DATASET: new entry in 'BUYS': <{},{},{}>".format(username, vinyl_name, date.today()))
         conn.commit()
 
     else:
@@ -271,7 +271,7 @@ def takeAndGoBack():
             SET quantity = ?
             WHERE vinyl = ?
         ''', (quantity-1, vinyl_name))
-        print("updated quantity in VINYLS entry {}: {}".format(vinyl_name, quantity-1))
+        print("DATASET: updated entry '{}' in table 'VINYLS': field 'quantity' = '{}'".format(vinyl_name, quantity-1))
         conn.commit()
 
         cursor = conn.cursor()
@@ -279,7 +279,7 @@ def takeAndGoBack():
             INSERT INTO buys (client,vinyl,date)
             VALUES (?, ?, ?)
         ''', (username, vinyl_name, date.today()))
-        print("new entry in BUYS: <{},{},{}>".format(username, vinyl_name, date.today()))
+        print("DATASET: new entry in 'BUYS': <{},{},{}>".format(username, vinyl_name, date.today()))
         conn.commit()
 
     else:
@@ -322,7 +322,7 @@ def setFavouriteGenre():
             SET fav_genre = ?
             WHERE username = ?
         ''', (favourite_genre, username))
-        print("updated fav_genre in CLIENTS entry {}: {}".format(username, favourite_genre))
+        print("DATASET: updated entry '{}' in table 'CLIENTS': field 'fav_genre' = '{}'".format(username, favourite_genre))
         conn.commit()
 
         ALMemory.raiseEvent("pepper-vinyl/genre_recognized", "true")
@@ -361,7 +361,7 @@ def setFavouriteAuthor():
             SET fav_author = ?
             WHERE username = ?
         ''', (favourite_author, username))
-        print("updated fav_author in CLIENTS entry {}: {}".format(username, favourite_author))
+        print("DATASET: updated entry '{}' in table 'CLIENTS': field 'fav_author' = '{}'".format(username, favourite_author))
         conn.commit()
 
         ALMemory.raiseEvent("pepper-vinyl/author_recognized", "true")
@@ -485,7 +485,7 @@ def playDemo():
         VALUES (?, ?, ?, ?)
     ''', (username, vinyl_name, predicted, date.today()))
     conn.commit()
-    print("new entry in LIKES: <{},{},{},{}>".format(username, vinyl_name, predicted, date.today()))
+    print("DATASET: new entry in 'LIKES': <{},{},{},{}>".format(username, vinyl_name, predicted, date.today()))
 
     conn.close()
 
@@ -511,7 +511,7 @@ def reset():
         SET last_visit = ?
         WHERE username = ?
     ''', (date.today(), username))
-    print("updated last_visit in CLIENTS entry {}: {}".format(username, date.today()))
+    print("DATASET: updated entry '{}' in table 'CLIENTS': field 'last_visit' = '{}'".format(username, date.today()))
     conn.commit()
 
     conn.close()
@@ -520,7 +520,7 @@ def reset():
         ALMemory.insertData(key, "")
         print("Deleted: {}".format(key))
 
-        
+
     move_to(0.0, 0.0, 0.0)
 
     ALMemory.raiseEvent("pepper-vinyl/finish_wait", "true")
@@ -801,8 +801,8 @@ def saveRating():
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
 
-    username = ALMemory.getData("pepper-vinyl/rating")
-    rating = ALMemory.getData("pepper-vinyl/username")
+    username = ALMemory.getData("pepper-vinyl/username")
+    rating = ALMemory.getData("pepper-vinyl/rating")
 
     conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
     cursor = conn.cursor()
@@ -812,7 +812,7 @@ def saveRating():
         INSERT INTO ratings (username,rating)
         VALUES (?, ?)
     ''', (username, rating))
-    print("new entry in RATINGS: <{},{}>".format(username, rating))
+    print("DATASET: new entry in 'RATINGS': <{},{}>".format(username, rating))
     conn.commit()
 
 
@@ -1201,7 +1201,7 @@ def showVinyls():
             current = [(i+vinyls_per_page)%len(result) for i in current]
         elif answer in current_vinyls:
             finish = True
-        elif answer == "00":
+        elif answer == "00" or answer == "OK":
             return
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)

@@ -1,0 +1,20 @@
+IMAGE
+<*,*,*,*>: img/vinyls.png
+----
+TEXT
+<*,*,*,*>: Here are some recent releases in the genre of hip hop:
+----
+BUTTONS
+damn
+<*,*,*,*>: Damn
+to pimp a butterfly
+<*,*,*,*>: To pimp a butterfly
+good kid maad city
+<*,*,*,*>: Good kid maad city
+wolves
+<*,*,*,*>: Wolves
+man on the moon
+<*,*,*,*>: Man on the moon
+back
+<*,*,*,*>: Back
+----

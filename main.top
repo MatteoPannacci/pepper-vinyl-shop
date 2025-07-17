@@ -215,7 +215,7 @@ proposal: %author_releases
     $pepper-vinyl/tablet_dyn=show_author_releases
     ^start(animations/Stand/Gestures/Explain_1)
     Good news! New vinyls from $pepper-vinyl/favourite_author just came out!
-    We have $pepper-vinyl/author_releases , are you interested in any of them?
+    Their titles are $pepper-vinyl/author_releases . Are you interested in any of them?
 
     u1: (~acceptance)
         ^start(animations/Stand/Gestures/YouKnowWhat_2)
@@ -266,8 +266,8 @@ proposal: %check_author_request
 proposal: %genre_releases
     $pepper-vinyl/tablet_dyn=show_genre_releases
     ^start(animations/Stand/Gestures/Explain_1)
-    I see you like $pepper-vinyl/favourite_genre ! New vinyl of this genre just came out!
-    We have $pepper-vinyl/genre_releases, are you interested in any of them?
+    I remember you like $pepper-vinyl/favourite_genre ! We offer some new vinyls of
+    this genre:  $pepper-vinyl/genre_releases . Are you interested in any of them?
 
     u1: (~acceptance)
         ^start(animations/Stand/Gestures/YouKnowWhat_2)
@@ -559,6 +559,7 @@ proposal: %get_the_vinyl
                 "{*} myself {*}"
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==by_myself"
             ])
+            # CONSIDERA COME COMPRATO
             ^gotoReactivate(need_something_else)
 
         u2: ([
@@ -972,7 +973,7 @@ proposal: %ask_review
         ^start(animations/Stand/Gestures/ScratchHead_1)
         How would you rate the service between 1 and 5?
 
-        u2: ("{*} ~rating {*}")
+        u2: ("{*} _~rating {*}")
             $pepper-vinyl/rating=$1
             ^gotoReactivate(save_rating)
 
