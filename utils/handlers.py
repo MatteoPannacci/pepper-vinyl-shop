@@ -24,6 +24,9 @@ MAIN_DIR = os.path.dirname(UTILS_DIR)
 AUDIO_DIR = os.path.join(MAIN_DIR, "audio")
 EMOTIONS_DIR = os.path.join(MAIN_DIR, "data/emotions/test")
 
+PROB_FAIL_RETRIEVAL = 0.1
+PROB_EMOTIONS = [0.5 0.5 0.0]
+
 
 def checkUsername():
 
@@ -43,7 +46,6 @@ def checkUsername():
     
     result = cursor.fetchone()
     recognized = "true" if result else "false"
-    ALMemory.raiseEvent("pepper-vinyl/recognized", recognized)
 
     if recognized == "false":
         cursor.execute('''
@@ -60,9 +62,11 @@ def checkUsername():
         if current_year > last_year:
             ALMemory.raiseEvent("pepper-vinyl/long_time", "true")
         else:
-            ALMemory.raiseEvent("pepper-vinyl/long_time", "true")
+            ALMemory.raiseEvent("pepper-vinyl/long_time", "false")
 
     conn.close()
+
+    ALMemory.raiseEvent("pepper-vinyl/recognized", recognized)
 
 
 def checkFavouriteGenre():
@@ -194,7 +198,7 @@ def guideClient():
     quantity = int(result[2])
 
     prob = random.random()
-    vinyl_present = "true" if prob > 0.1 else "false"
+    vinyl_present = "true" if prob > PROB_FAIL_RETRIEVAL else "false"
 
     if vinyl_present == "true":
 
@@ -255,7 +259,7 @@ def takeAndGoBack():
     quantity = int(result[2])
 
     prob = random.random()
-    vinyl_present = "true" if prob > 0.1 else "false"
+    vinyl_present = "true" if prob > PROB_FAIL_RETRIEVAL else "false"
 
     if vinyl_present == "true":
 
@@ -465,7 +469,7 @@ def playDemo():
     #ALAudioPlayer.playFile(file_path)
     dance_to_music()
 
-    reaction = random.choice(["happy", "neutral", "disgusted"])
+    reaction = random.choice(["happy", "neutral", "disgusted"], weights=PROB_EMOTIONS)
     print("User reaction: {}".format(reaction))
 
     image_path = os.path.join(EMOTIONS_DIR, reaction, "im{}.png".format(random.randint(0,100)))
@@ -532,6 +536,7 @@ def pointToVinyl():
     ALMemory = manager.session.service('ALMemory')
     ALTracker = manager.session.service('ALTracker')
     ALMotion = manager.session.service('ALMotion')
+    ALRobotPosture = manager.session.service('ALRobotPosture')
 
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
 
@@ -546,11 +551,12 @@ def pointToVinyl():
     result = cursor.fetchone()
     conn.close()
 
-    ALTracker.pointAt("RArm", [result[0], result[1], 1.0], 1, 1.0)
-    ALTracker.lookAt([result[0], result[1], 1.0], 1, 1.0, True)
-
     current_pose = ALMotion.getRobotPosition(False)
     client_direction = current_pose[2]
+
+    ALRobotPosture.goToPosture("StandInit", 0.5)
+    ALTracker.pointAt("RArm", [result[0], result[1], 1.0], 1, 1.0)
+    ALTracker.lookAt([result[0], result[1], 1.0], 1, 1.0, True)
 
     ALMemory.raiseEvent("pepper-vinyl/client_direction", client_direction)
 
@@ -622,17 +628,17 @@ def checkRecommendationRequest():
         ALMemory.raiseEvent("pepper-vinyl/vinyl_recognized", "false")
 
 
-def checkTodayRequest():
+def checkMonthRequest():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
 
     request = ALMemory.getData("pepper-vinyl/request")
 
-    today_releases = ALMemory.getData("pepper-vinyl/today_releases")
-    today_releases = list(ast.literal_eval("(%s,)" % today_releases))
+    month_releases = ALMemory.getData("pepper-vinyl/month_releases")
+    month_releases = list(ast.literal_eval("(%s,)" % month_releases))
 
-    if request in today_releases:
+    if request in month_releases:
         ALMemory.raiseEvent("pepper-vinyl/vinyl_recognized", "true")
         ALMemory.raiseEvent("pepper-vinyl/vinyl_name", request)
     
@@ -698,7 +704,8 @@ def chitChat():
     ALMemory.raiseEvent("pepper-vinyl/favourite_author", fav_author)
     ALMemory.raiseEvent("pepper-vinyl/last_visit", last_visit)
 
-    today = date.today()
+    curr_date = date.today()
+    last_month = curr_date - relativedelta(months=1)
 
     # check arrived order
     cursor.execute('''
@@ -724,26 +731,26 @@ def chitChat():
 
     extraction = []
 
-    # check today release
+    # check month release
     cursor.execute('''
         SELECT *
         FROM vinyls
-        WHERE release_date = ? AND quantity > 0
+        WHERE release_date > ? AND quantity > 0
         LIMIT 5
-    ''', (today,))
+    ''', (last_month,))
 
-    today_releases = cursor.fetchall()
-    today_releases = [str(i[0]) for i in today_releases]
+    month_releases = cursor.fetchall()
+    month_releases = [str(i[0]) for i in month_releases]
 
-    if len(today_releases) > 0:
+    if len(month_releases) > 0:
 
-        today_releases_string = ""
-        for i in today_releases:
-            today_releases_string += " '{}',".format(i)
-        today_releases_string = today_releases_string[:-1]
+        month_releases_string = ""
+        for i in month_releases:
+            month_releases_string += " '{}',".format(i)
+        month_releases_string = month_releases_string[:-1]
 
-        extraction.append("today_releases")
-        ALMemory.raiseEvent("pepper-vinyl/today_releases", today_releases_string)
+        extraction.append("month_releases")
+        ALMemory.raiseEvent("pepper-vinyl/month_releases", month_releases_string)
 
     # check new from favourite author
     cursor.execute('''
@@ -751,7 +758,7 @@ def chitChat():
         FROM vinyls
         WHERE author = ? AND release_date > ? AND release_date <= ?
         LIMIT 5
-    ''', (fav_author, last_visit, today))
+    ''', (fav_author, last_visit, curr_date))
 
     author_releases = cursor.fetchall()
     author_releases = [str(i[0]) for i in author_releases]
@@ -772,7 +779,7 @@ def chitChat():
         FROM vinyls
         WHERE genre = ? AND release_date > ? AND release_date <= ?
         LIMIT 5
-    ''', (fav_genre, last_visit, today))
+    ''', (fav_genre, last_visit, curr_date))
 
     genre_releases = cursor.fetchall()
     genre_releases = [str(i[0]) for i in genre_releases]
@@ -977,6 +984,45 @@ def findSuggestionTrends():
     ALMemory.raiseEvent("pepper-vinyl/suggestion", result)
 
 
+def userBuysByHimself():
+
+    manager = SessionManager()
+    ALMemory = manager.session.service('ALMemory')
+
+    username = ALMemory.getData("pepper-vinyl/username")
+    vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT quantity
+        FROM  vinyls
+        WHERE vinyl = ?
+    ''', (vinyl_name,))
+
+    result = cursor.fetchone()
+    quantity = int(result[0])
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE vinyls
+        SET quantity = ?
+        WHERE vinyl = ?
+    ''', (quantity-1, vinyl_name))
+    print("DATASET: updated entry '{}' in table 'VINYLS': field 'quantity' = '{}'".format(vinyl_name, quantity-1))
+    conn.commit()
+
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO buys (client,vinyl,date)
+        VALUES (?, ?, ?)
+    ''', (username, vinyl_name, date.today()))
+    print("DATASET: new entry in 'BUYS': <{},{},{}>".format(username, vinyl_name, date.today()))
+    conn.commit()
+
+    conn.close()
+
+
 def handleFunction(value):
 
     if value == "check_username":
@@ -1036,8 +1082,8 @@ def handleFunction(value):
     elif value == "chit_chat":
         chitChat()
 
-    elif value == "check_today_request":
-        checkTodayRequest()
+    elif value == "check_month_request":
+        checkMonthRequest()
 
     elif value == "check_author_request":
         checkAuthorRequest()
@@ -1083,6 +1129,9 @@ def handleFunction(value):
 
     elif value == "check_trends":
         checkTrends()
+
+    elif value == "user_buys_by_himself":
+        userBuysByHimself()
 
     else:
         raise ValueError("handler not found for value {}".format(value))
@@ -1288,23 +1337,23 @@ def showRecommendations():
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
 
 
-def showTodayReleases():
+def showMonthReleases():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
 
-    today_releases = ALMemory.getData("pepper-vinyl/today_releases")
-    today_releases = list(ast.literal_eval("(%s,)" % today_releases))
-    today_releases.append("back")
+    month_releases = ALMemory.getData("pepper-vinyl/month_releases")
+    month_releases = list(ast.literal_eval("(%s,)" % month_releases))
+    month_releases.append("back")
 
     create_dynamic_action(
         image = "vinyls.png",
-        text = "Here are some releases from today:",
-        buttons = today_releases,
-        action_name = "show-today-releases"
+        text = "Here are some releases from this month:",
+        buttons = month_releases,
+        action_name = "show-month-releases"
     )
 
-    answer = handleTablet("ask_show-today-releases")
+    answer = handleTablet("ask_show-month-releases")
 
     ALMemory.raiseEvent("pepper-vinyl/answer", answer)
     ALMemory.raiseEvent("pepper-vinyl/tablet_finish", "true")
@@ -1502,8 +1551,8 @@ def handleTabletDynamic(value):
     elif value == "show_recommendations":
         showRecommendations()
 
-    elif value == "show_today_releases":
-        showTodayReleases()
+    elif value == "show_month_releases":
+        showMonthReleases()
 
     elif value == "show_author_releases":
         showAuthorReleases()

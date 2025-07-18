@@ -4,5 +4,6 @@ train_model(
     hidden_dim=64,
     epochs=2000,
     lr=0.001,
-    num_samples=1024
+    num_samples=1024,
+    top_k=5
 )

@@ -1,0 +1,14 @@
+IMAGE
+<*,*,*,*>: img/vinyls.png
+----
+TEXT
+<*,*,*,*>: Here are some releases from this month:
+----
+BUTTONS
+hammer
+<*,*,*,*>: Hammer
+unravelling
+<*,*,*,*>: Unravelling
+back
+<*,*,*,*>: Back
+----

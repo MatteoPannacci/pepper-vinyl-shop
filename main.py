@@ -62,6 +62,9 @@ def main():
     ALDialog.activateTopic(topic_name)
     ALDialog.subscribe('pepper_vinyl_shop')
 
+    # go back to starting position
+    move_to(0.0, 0.0, 0.0)
+
     ALRobotPosture.goToPosture("StandInit", 0.5)
 
     # reset variables

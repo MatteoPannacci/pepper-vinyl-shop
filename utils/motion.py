@@ -50,7 +50,8 @@ def move_to(target_x, target_y, target_theta = None):
         elif target_theta == "behind":
             relative_target_theta = -math.pi
 
-        ALMotion.moveTo(0.0, 0.0, relative_target_theta)
+        if relative_target_theta**2 > 0.05:
+            ALMotion.moveTo(0.0, 0.0, relative_target_theta)
 
 
 def rotate(target_theta):

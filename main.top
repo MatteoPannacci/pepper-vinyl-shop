@@ -23,6 +23,22 @@ concept: (dont_know) ["I don't know" "don't know"]
 
 concept: (rating) ["1" "2" "3" "4" "5"]
 
+concept: (i_want) ["I want" "I'd like" "do you have" "I'm here for" "I want to buy" 
+                   "I wanted" "what about" "I want to listen" "I want to listen to"
+                   "I have heard you have" "I wanted to buy" "can I get" "I'm looking for"
+                   "could I have" "I need" "I'm interested in" "show me" "give me" 
+                   "I'd like to get" "can you show me" "I'd be interested in" 
+                   "is it possible to buy" "is there a way to get" "may I have" "let me see" 
+                   "I'm thinking of buying" "do you sell" "I'm checking out" 
+                   "I'm planning to get" "bring me" "I came for"]
+
+concept: (i_like) ["I like" "I like to listen to" "I listen to" "I'm into" "I'm a fan of" 
+                  "I enjoy listening to" "I love" "I love listening to" "my favorite artist is" 
+                  "my favorite band is" "my favorite genre is" "I'm all about" 
+                  "I usually listen to" "I often listen to" "I prefer" "my go-to music is" 
+                  "I vibe with" "I follow" "I can't stop listening to" "I'm obsessed with" 
+                  "I've been listening to" "I'm really into" "I'm hooked on"]
+
 
 
 # --- Global Greeting ---
@@ -115,13 +131,13 @@ proposal: %confirm_name
 proposal: %check_name
     $pepper-vinyl/function=check_username
 
-    u1: ("e:pepper-vinyl/long_time $pepper-vinyl/recognized==true $pepper-vinyl/long_time==false")
+    u1: ("e:pepper-vinyl/recognized $pepper-vinyl/recognized==true $pepper-vinyl/long_time==false")
         $pepper-vinyl/tablet_dyn=welcome_old_user
         ^start(animations/Stand/Gestures/Salute_1)
         ~greetings $pepper-vinyl/username ! Welcome back to our shop!
         ^gotoReactivate(chit_chat)
 
-    u1: ("e:pepper-vinyl/long_time $pepper-vinyl/recognized==true $pepper-vinyl/long_time==true")
+    u1: ("e:pepper-vinyl/recognized $pepper-vinyl/recognized==true $pepper-vinyl/long_time==true")
         $pepper-vinyl/tablet_dyn=welcome_old_user_long_time
         ^start(animations/Stand/Gestures/Salute_1)
         ~greetings $pepper-vinyl/username ! I haven't seen you in a long time, welcome back to our shop!
@@ -149,8 +165,8 @@ proposal: %chit_chat
         You can get them from the cashier.
         ^gotoReactivate(need_something_else) # -- need something else
 
-    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==today_releases")
-        ^gotoReactivate(today_releases)
+    u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==month_releases")
+        ^gotoReactivate(month_releases)
 
     u1: ("e:pepper-vinyl/chit_chat $pepper-vinyl/chit_chat==author_releases")
         ^gotoReactivate(author_releases)
@@ -160,24 +176,25 @@ proposal: %chit_chat
 
 
 
-# --- Discuss about today releases ---
-proposal: %today_releases
-    $pepper-vinyl/tablet_dyn=show_today_releases
+# --- Discuss about month releases ---
+proposal: %month_releases
+    $pepper-vinyl/tablet_dyn=show_month_releases
     ^start(animations/Stand/Gestures/Explain_1)
-    Are you here for one of today's new releases? $pepper-vinyl/today_releases
+    We have some new releases this month: $pepper-vinyl/month_releases .
+    Are you interested in any of them?
 
     u1: (~acceptance)
         Which one is of your interest?
 
         # --- answer from voice ---
-        u2: (_*)
+        u2: ("{~i_want} _*")
             $pepper-vinyl/request=$1
-            ^gotoReactivate(check_today_request)
+            ^gotoReactivate(check_month_request)
 
         # --- answer from tablet ---
         u2: (e:pepper-vinyl/answer)
             $pepper-vinyl/request=$pepper-vinyl/answer
-            ^gotoReactivate(check_today_request)
+            ^gotoReactivate(check_month_request)
 
     u1: ([
             ~refusal
@@ -186,19 +203,19 @@ proposal: %today_releases
         ^gotoReactivate(menu)
 
     # --- answer from voice ---
-    u1: (_*)
+    u1: ("{~i_want} _*")
         $pepper-vinyl/request=$1
-        ^gotoReactivate(check_today_request)
+        ^gotoReactivate(check_month_request)
 
     # --- answer from tablet ---
     u1: (e:pepper-vinyl/answer)
         $pepper-vinyl/request=$pepper-vinyl/answer
-        ^gotoReactivate(check_today_request)
+        ^gotoReactivate(check_month_request)
 
 
 
-proposal: %check_today_request
-    $pepper-vinyl/function=check_today_request
+proposal: %check_month_request
+    $pepper-vinyl/function=check_month_request
 
     u1: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==true)
         ^gotoReactivate(get_the_vinyl)
@@ -206,7 +223,7 @@ proposal: %check_today_request
     u1: (e:pepper-vinyl/vinyl_recognized $pepper-vinyl/vinyl_recognized==false)
         ^start(animations/Stand/Gestures/ScratchHead_1)
         I don't think that was the name of a vinyl.
-        ^gotoReactivate(today_releases)
+        ^gotoReactivate(month_releases)
 
 
 
@@ -222,7 +239,7 @@ proposal: %author_releases
         Which one is of your interest?
 
         # --- answer from voice ---
-        u2: (_*)
+        u2: ("{~i_want} _*")
             $pepper-vinyl/request=$1
             ^gotoReactivate(check_author_request)
 
@@ -238,7 +255,7 @@ proposal: %author_releases
         ^gotoReactivate(menu)
 
     # --- answer from voice ---
-    u1: (_*)
+    u1: ("{~i_want} _*")
         $pepper-vinyl/request=$1
         ^gotoReactivate(check_author_request)
 
@@ -274,7 +291,7 @@ proposal: %genre_releases
         Which one is of your interest?
 
         # --- answer from voice ---
-        u2: (_*)
+        u2: ("{~i_want} _*")
             $pepper-vinyl/request=$1
             ^gotoReactivate(check_genre_request)
 
@@ -290,7 +307,7 @@ proposal: %genre_releases
         ^gotoReactivate(menu)
 
     # --- answer from voice ---
-    u1: (_*)
+    u1: ("{~i_want} _*")
         $pepper-vinyl/request=$1
         ^gotoReactivate(check_genre_request)
 
@@ -352,7 +369,7 @@ proposal: %specific
     Here is the catalogue of the vinyls available, you can also directly tell me the name of what you are looking for.
     $pepper-vinyl/tablet_dyn=show_vinyls
 
-    u1: (_*)
+    u1: ("{~i_want} _*")
         $pepper-vinyl/vinyl_name=$1
         ^gotoReactivate(check_storage)
 
@@ -559,7 +576,7 @@ proposal: %get_the_vinyl
                 "{*} myself {*}"
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==by_myself"
             ])
-            # CONSIDERA COME COMPRATO
+            $pepper-vinyl/tablet=user_buys_by_himself
             ^gotoReactivate(need_something_else)
 
         u2: ([
@@ -607,7 +624,7 @@ proposal: %ask_favourite_genre
         $pepper-vinyl/function="set_favourite_genre"
         ^gotoReactivate(give_suggestion)
 
-    u1: (_*)
+    u1: ("{~i_like} _*")
         $pepper-vinyl/favourite_genre=$1
         $pepper-vinyl/function="set_favourite_genre"
 
@@ -631,7 +648,7 @@ proposal: %ask_favourite_author
         $pepper-vinyl/function="set_favourite_author"
         ^gotoReactivate(give_suggestion)
 
-    u1: (_*)
+    u1: ("{~i_like} _*")
         $pepper-vinyl/favourite_author=$1
         $pepper-vinyl/function="set_favourite_author"
 
@@ -771,7 +788,7 @@ proposal: %demo
     Here is the catalogue of the vinyls available, you can also directly tell me the name of what you are looking for.
     $pepper-vinyl/tablet_dyn=show_vinyls
 
-    u1: (_*)
+    u1: ("{~i_want} _*")
         $pepper-vinyl/vinyl_name=$1
         ^gotoReactivate(play_vinyl)
 
@@ -857,7 +874,7 @@ proposal: %different_demo
             Which one is of your interest?
 
             # --- answer from voice ---
-            u3: (_*)
+            u3: ("{~i_want} _*")
                 $pepper-vinyl/vinyl_name=$1
                 ^gotoReactivate(play_vinyl)
 
@@ -873,7 +890,7 @@ proposal: %different_demo
             ^gotoReactivate(need_something_else)
 
         # --- answer from voice ---
-        u2: (_*)
+        u2: ("{~i_want} _*")
             $pepper-vinyl/vinyl_name=$1
             ^gotoReactivate(play_vinyl)
 
@@ -901,7 +918,7 @@ proposal: %recommendation
             Which one is of your interest?
 
             # --- answer from voice ---
-            u3: (_*)
+            u3: ("{~i_want} _*")
                 $pepper-vinyl/request=$1
                 ^gotoReactivate(check_recommendation_request)
 
@@ -917,7 +934,7 @@ proposal: %recommendation
             ^gotoReactivate(need_something_else)
 
         # --- answer from voice ---
-        u2: (_*)
+        u2: ("{~i_want} _*")
             $pepper-vinyl/request=$1
             ^gotoReactivate(check_recommendation_request)
 
@@ -991,8 +1008,8 @@ proposal: %ask_review
 
 proposal: %save_rating
     $pepper-vinyl/function=save_rating
-    ^start(animations/Stand/Emotions/Positive/Happy_1)
-    Your vote has been submitten!
+    ^start(animations/Stand/Gestures/Explain_1)
+    Your vote has been submitten successfully.
     # REACT TO THE RATING RECEIVED?
     ^gotoReactivate(finish)
 
