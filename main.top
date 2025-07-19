@@ -494,7 +494,7 @@ proposal: %get_the_vinyl
 
     u1: (e:pepper-vinyl/finish_wait)
         $pepper-vinyl/tablet=ask_get-the-vinyl
-        The vinyls is right there.
+        The vinyl is right there.
         I can guide you to it or take it for you. Otherwise if you prefer you can go by yourself.
         $pepper-vinyl/function=rotate_back
 
@@ -576,7 +576,7 @@ proposal: %get_the_vinyl
                 "{*} myself {*}"
                 "e:pepper-vinyl/answer $pepper-vinyl/answer==by_myself"
             ])
-            $pepper-vinyl/tablet=user_buys_by_himself
+            $pepper-vinyl/function=user_buys_by_himself
             ^gotoReactivate(need_something_else)
 
         u2: ([

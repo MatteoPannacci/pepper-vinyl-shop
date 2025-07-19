@@ -70,7 +70,6 @@ def main():
     # reset variables
     for key in ALMemory.getDataList("pepper-vinyl/"):
         ALMemory.insertData(key, "")
-        print("Deleted: {}".format(key))
     ALMemory.raiseEvent("pepper-vinyl/counter", "0")
 
     # connect handlers

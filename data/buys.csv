@@ -26,10 +26,10 @@ ali,the four seasons,2022-11-19
 ali,hotel california,2023-11-28
 ali,abbey road,2022-11-12
 ali,the chronic,2023-07-24
-ali,21,2023-05-10
 ali,illmatic,2023-05-25
 ali,kind of blue,2022-12-24
 ali,symphony no 5,2024-01-12
+ali,the four seasons,2024-01-12
 ali,nevermind,2023-03-29
 ali,graceland,2023-12-17
 ali,blue,2022-11-29
@@ -44,6 +44,7 @@ matteo,to pimp a butterfly,2019-10-01
 matteo,the queen is dead,2019-12-09
 matteo,dark side of the moon,2019-04-16
 matteo,symphony no 5,2019-06-04
+matteo,the four seasons,2019-06-04
 matteo,ten,2020-04-09
 matteo,disintegration,2019-12-17
 matteo,kind of blue,2020-07-19
@@ -52,11 +53,11 @@ anna,damn,2021-05-09
 anna,abbey road,2020-10-10
 anna,bad,2021-08-19
 anna,symphony no 5,2021-07-03
+anna,the four seasons,2021-07-03
 anna,born to run,2020-10-08
 anna,the wall,2020-12-18
 anna,rumours,2021-04-25
 anna,dark side of the moon,2021-01-05
-anna,21,2021-04-11
 anna,ok computer,2021-05-31
 anna,graceland,2021-05-06
 anna,ten,2020-12-18
@@ -148,13 +149,13 @@ andrea,ten,2024-02-03
 andrea,disintegration,2024-05-14
 andrea,blue,2023-04-10
 francesca,the four seasons,2023-04-18
-francesca,21,2023-08-17
 francesca,parachutes,2023-07-15
 francesca,american idiot,2022-09-30
 francesca,illmatic,2023-02-21
 francesca,kid a,2023-03-13
 francesca,kind of blue,2023-08-15
 francesca,symphony no 5,2023-03-03
+francesca,the four seasons,2023-03-03
 francesca,nevermind,2023-01-01
 francesca,ok computer,2023-07-11
 francesca,blue,2022-10-14
@@ -190,6 +191,7 @@ davide,illmatic,2023-12-24
 davide,the rise and fall of ziggy stardust,2023-10-26
 davide,lemonade,2024-07-29
 davide,symphony no 5,2024-09-06
+davide,the four seasons,2022-07-12
 davide,ok computer,2024-11-30
 davide,ten,2023-10-20
 davide,disintegration,2024-03-29
@@ -212,6 +214,7 @@ silvia,to pimp a butterfly,2022-12-31
 silvia,master of puppets,2023-01-03
 silvia,the rise and fall of ziggy stardust,2021-10-25
 silvia,symphony no 5,2022-09-17
+silvia,the four seasons,2021-01-14
 silvia,nevermind,2022-11-21
 silvia,ok computer,2022-06-23
 silvia,graceland,2022-08-19
@@ -400,4 +403,3 @@ enrico,disintegration,2023-05-11
 enrico,demon days,2024-02-17
 enrico,mezzanine,2024-06-13
 gianfranco,21,2025-07-15
-gianfranco,symphony no 5,2025-07-15

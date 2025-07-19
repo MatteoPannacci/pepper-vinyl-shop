@@ -4,6 +4,7 @@ import pandas as pd
 import networkx as nx
 import tensorflow as tf
 import pickle
+import sqlite3
 
 
 UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +15,11 @@ MODELS_DIR = os.path.join(MAIN_DIR, "models")
 
 
 def build_graph(seed=42):
-    df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
+
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    df = pd.read_sql_query("SELECT * FROM {}".format("buys"), conn)
+    conn.close()
+
     users = df['client'].unique().tolist()
     items = df['vinyl'].unique().tolist()
 
@@ -115,7 +120,9 @@ def train_model(hidden_dim=32, epochs=100, lr=0.01, num_samples=1024, top_k=1, n
     train_step = tf.train.AdamOptimizer(lr).minimize(loss)
 
     # Load user positive interactions
-    df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    df = pd.read_sql_query("SELECT * FROM {}".format("buys"), conn)
+    conn.close()
 
     user_pos = {}
     for _, row in df.iterrows():
@@ -211,7 +218,9 @@ def give_recommendations(username, top_k=5):
     scores = [(idx_to_item[idx], score) for idx, score in zip(item_indices, cosine_scores)]
 
     # Filter out already seen items
-    df = pd.read_csv(os.path.join(DATASET_DIR, "buys.csv"))
+    conn = sqlite3.connect(os.path.join(MAIN_DIR, "data/database.db"))
+    df = pd.read_sql_query("SELECT * FROM {}".format("buys"), conn)
+    conn.close()
     seen = set(df[df['client'] == username]['vinyl'])
     ranked = sorted(scores, key=lambda x: -x[1])
     

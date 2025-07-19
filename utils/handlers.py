@@ -4,6 +4,7 @@ import sys
 import os
 import sqlite3
 import pandas as pd
+import numpy as np
 import time
 import random
 import string
@@ -24,8 +25,9 @@ MAIN_DIR = os.path.dirname(UTILS_DIR)
 AUDIO_DIR = os.path.join(MAIN_DIR, "audio")
 EMOTIONS_DIR = os.path.join(MAIN_DIR, "data/emotions/test")
 
-PROB_FAIL_RETRIEVAL = 0.1
-PROB_EMOTIONS = [0.5 0.5 0.0]
+PROB_FAIL_TAKEIT = 0.1
+PROB_FAIL_GUIDEME = 0.1
+PROB_EMOTIONS = [0.5, 0.5, 0.0]
 
 
 def checkUsername():
@@ -198,7 +200,7 @@ def guideClient():
     quantity = int(result[2])
 
     prob = random.random()
-    vinyl_present = "true" if prob > PROB_FAIL_RETRIEVAL else "false"
+    vinyl_present = "true" if prob > PROB_FAIL_GUIDEME else "false"
 
     if vinyl_present == "true":
 
@@ -259,7 +261,7 @@ def takeAndGoBack():
     quantity = int(result[2])
 
     prob = random.random()
-    vinyl_present = "true" if prob > PROB_FAIL_RETRIEVAL else "false"
+    vinyl_present = "true" if prob > PROB_FAIL_TAKEIT else "false"
 
     if vinyl_present == "true":
 
@@ -469,7 +471,8 @@ def playDemo():
     #ALAudioPlayer.playFile(file_path)
     dance_to_music()
 
-    reaction = random.choice(["happy", "neutral", "disgusted"], weights=PROB_EMOTIONS)
+
+    reaction = str(np.random.choice(["happy", "neutral", "disgusted"], 1, p=PROB_EMOTIONS)[0])
     print("User reaction: {}".format(reaction))
 
     image_path = os.path.join(EMOTIONS_DIR, reaction, "im{}.png".format(random.randint(0,100)))
@@ -594,7 +597,7 @@ def recommendations():
 
     train_model(
         hidden_dim=64,
-        epochs=150, # changed for not making the user wait too much
+        epochs=150,
         lr=0.01,
         num_samples=1024
     )
@@ -988,6 +991,9 @@ def userBuysByHimself():
 
     manager = SessionManager()
     ALMemory = manager.session.service('ALMemory')
+    ALRobotPosture = manager.session.service('ALRobotPosture')
+
+    ALRobotPosture.goToPosture("StandInit", 0.5)
 
     username = ALMemory.getData("pepper-vinyl/username")
     vinyl_name = ALMemory.getData("pepper-vinyl/vinyl_name")
@@ -1021,6 +1027,8 @@ def userBuysByHimself():
     conn.commit()
 
     conn.close()
+
+
 
 
 def handleFunction(value):

@@ -2,5 +2,7 @@ IMAGE
 <*,*,*,*>: img/welcome.png
 ----
 TEXT
-<*,*,*,*>: Hi luca! Welcome back to our shop!
+<*,*,*,*>: Hi gianfranco! Welcome back to our shop!
+----
+BUTTONS
 ----
