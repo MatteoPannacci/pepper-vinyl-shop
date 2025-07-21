@@ -1,45 +1,17 @@
-# 🛍️ Pepper Vinyl Shop Assistant
+# pepper-vinyl-shop
 
-**Pepper Vinyl Shop** is an interactive robotic assistant developed using the Pepper humanoid robot, designed for intelligent customer service in a vinyl music store. The project integrates Human-Robot Interaction (HRI) and Robotic-Based Cognition (RBC) to create a socially intelligent shopping experience.
+Project developed for the modules of "Human-Robot Interaction" and "Robot Benchmarking and Competitions" within the course of "Elective in Artificial Intelligence" during the MSc in Artificial Intelligence and Robotics at Sapienza University of Rome, A.Y. 2024-2025.
 
-## 🎯 Project Goals
 
-* **Multimodal Interaction**: Natural speech, tablet UI, gestures, and emotion-aware behavior.
-* **Personalized Recommendations**: Using SQL-based logic and LightGCN collaborative filtering.
-* **Context Awareness**: Recognizes returning users, remembers preferences, detects indecision.
-* **Physical Assistance**: Guides users or points to vinyl locations using spatial grounding.
+# Summary
 
-## 🧠 Key Features
+**Pepper Vinyl Shop Assistant** is an interactive robotic assistant built on the SoftBank Pepper platform for intelligent customer service in a vinyl music store. It combines multimodal interaction, including natural speech, gesture, tablet UI, and emotion-aware behavior, with personalized music recommendations using SQL logic and LightGCN collaborative filtering. The system recognizes returning users, adapts to their preferences, detects indecision, and physically assists by guiding or pointing to vinyl locations. 
 
-* Emotion-driven music suggestions using a trained CNN (FER2013).
-* Real-time dialog via Pepper's ALDialog, MODIM interface, and event-based memory triggers.
-* SQL + knowledge graph for personalized memory and recommendation logic.
-* Modular architecture with benchmarkable performance for:
+Key features include emotion-driven music suggestions powered by a CNN, real-time dialog via ALDialog and MODIM, and a memory-driven recommendation system. Evaluated with strong performance metrics and ethical HRI principles, the project demonstrates a modular, deployable architecture for socially intelligent retail robotics.
 
-  * Person detection
-  * Speech synthesis and recognition
-  * Navigation and vinyl retrieval
-  * Emotion recognition and response
 
-## 📊 Evaluation Highlights
 
-* **User Study**: Emotion during demo strongly influenced purchase decisions (p < 0.05).
-* **Functional Metrics**: 83% person detection recall, 90% command recognition, 77% hit-rate in recommendations.
-* **Task Success**: Evaluated using structured HRI benchmarks inspired by RoboCup and SciRoc.
-
-## 🛠️ Tech Stack
-
-* **Robot**: SoftBank Pepper with NAOqi & ALMemory
-* **Database**: SQLite
-* **ML**: TensorFlow (LightGCN, CNN for emotion detection)
-* **Interface**: MODIM + tablet + voice
-
-## 📌 Notes
-
-* Simulated deployment due to platform constraints, but designed to be deployable on a real Pepper robot.
-* Focus on ethical HRI design: data transparency, emotional intelligence, and privacy-conscious personalization.
-
-## How to run
+# How to run
 
 
 1. Clone the [hri_software repository](https://bitbucket.org/iocchi/hri_software/src/master/)
